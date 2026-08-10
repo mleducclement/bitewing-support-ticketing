@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bitewing", "src\bitewing\bitewing\bitewing.csproj", "{D1810A29-49DE-4015-9742-E2DCA6B251DF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bitewing", "src\bitewing\bitewing.csproj", "{D1810A29-49DE-4015-9742-E2DCA6B251DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
