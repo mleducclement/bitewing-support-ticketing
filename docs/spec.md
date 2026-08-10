@@ -203,7 +203,7 @@ Notes on specific categories:
 
 ### Failure handling
 
-`area` and `type` are nullable and an unclassified ticket is a normal, valid state, not an error. If the model call times out, is rate-limited, or returns malformed output, the ticket remains unclassified and is retried a bounded number of times. Agents can classify manually at any point.
+`area` and `type` are nullable and an unclassified ticket is a normal, valid state, not an error. If the model call times out, is rate-limited, or returns malformed output, the ticket remains unclassified and is retried a bounded number of times (3 times at most, no backoffs at the moment). Agents can classify manually at any point.
 
 ### Measurement
 
@@ -268,5 +268,4 @@ Listed so that each can be declined by pointing at this section.
 
 ## 9. Open items
 
-- Retry count and backoff for failed classification calls (developer decision, not a client one)
 - Whether spot-check prompts should be capped per agent per day, the client raised uneven random distribution and it was not resolved
