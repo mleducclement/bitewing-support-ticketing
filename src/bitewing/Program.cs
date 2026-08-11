@@ -15,10 +15,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.MapGet("/health", () => "ok");
+
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();

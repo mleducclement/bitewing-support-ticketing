@@ -430,3 +430,6 @@ FodyWeavers.xsd
 
 #Rider specific
 .idea/
+
+#Project specific
+src/bitewing/wwwroot/
