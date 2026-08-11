@@ -1,4 +1,6 @@
+using bitewing.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace bitewing.Controllers;
 
@@ -6,9 +8,14 @@ namespace bitewing.Controllers;
 [Route("api/[controller]")]
 public class TestController : ControllerBase
 {
-    [HttpGet(Name = "GetResponse")]
-    public string Get()
+    private readonly AppDbContext _db;
+    
+    public TestController(AppDbContext db)
     {
-        return "Testing if CI is functional";
+        _db = db;
     }
+
+    [HttpGet("ping")]
+    public async Task<IActionResult> GetPings()
+        => Ok(await _db.Pings.ToListAsync());
 }
