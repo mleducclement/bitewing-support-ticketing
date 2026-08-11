@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace bitewing.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class TestController : ControllerBase
 {
     [HttpGet(Name = "GetResponse")]
     public string Get()
     {
-        return "Hello World";
+        return "Testing if CI is functional";
     }
 }

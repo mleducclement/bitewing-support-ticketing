@@ -7,14 +7,14 @@ The client AND data are fictional. The requirements are not invented in one sitt
 ## Stack
 
 - **Backend:** ASP.NET Core
-- **Frontend:** React, [placeholder component library]
-- **Database:** [placeholder]
-- **Hosting:** [placeholder], deployed continuously from `main`
-- **LLM**: [placeholder]
+- **Frontend:** React, Shadcn/ui
+- **Database:** Postgres
+- **Hosting:** Render, deployed continuously from `main`
+- **LLM**: Claude (Anthropic API)
 
 ## Links
 
-**Live demo:** [placeholder] 
+**[Live demo](https://bitewing-support-ticketing.onrender.com)**
 
 **[Specification](docs/spec.md)** 
 
