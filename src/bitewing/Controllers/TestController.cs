@@ -1,6 +1,8 @@
 using bitewing.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace bitewing.Controllers;
 
@@ -14,4 +16,8 @@ public class TestController : ControllerBase
     {
         _db = db;
     }
+    
+    [Authorize(Roles = "TeamLead")]
+    [HttpGet("lead-only")]
+    public IActionResult Secure() => Ok("team lead");
 }

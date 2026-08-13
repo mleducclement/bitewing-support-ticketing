@@ -1,6 +1,31 @@
 @bitewing_HostAddress = http://localhost:5073
 
-GET {{bitewing_HostAddress}}/weatherforecast/
-Accept: application/json
+### AGENT LOGIN
+POST {{bitewing_HostAddress}}/api/auth/login
+Content-Type: application/json
 
-###
+{
+  "email": "skerrigan@bitewing.net",
+  "password": "Password123!"
+}
+
+### LEAD LOGIN
+POST {{bitewing_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "amengsk@bitewing.net",
+  "password": "Password123!" 
+}
+
+### LOGOUT
+POST {{bitewing_HostAddress}}/api/auth/logout
+Content-Type: application/json
+
+{}
+
+### LEAD TEST
+GET {{bitewing_HostAddress}}/api/test/lead-only
+
+### ME
+GET {{bitewing_HostAddress}}/api/auth/me
