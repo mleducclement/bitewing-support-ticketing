@@ -433,3 +433,4 @@ FodyWeavers.xsd
 
 #Project specific
 src/bitewing/wwwroot/
+http-client.private.env.json

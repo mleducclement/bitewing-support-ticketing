@@ -1,31 +1,26 @@
-@bitewing_HostAddress = http://localhost:5073
-
 ### AGENT LOGIN
-POST {{bitewing_HostAddress}}/api/auth/login
+POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
   "email": "skerrigan@bitewing.net",
-  "password": "Password123!"
+  "password": "{{password}}"
 }
 
 ### LEAD LOGIN
-POST {{bitewing_HostAddress}}/api/auth/login
+POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
   "email": "amengsk@bitewing.net",
-  "password": "Password123!" 
+  "password": "{{password}}"
 }
 
 ### LOGOUT
-POST {{bitewing_HostAddress}}/api/auth/logout
+POST {{host}}/api/auth/logout
 Content-Type: application/json
 
 {}
 
-### LEAD TEST
-GET {{bitewing_HostAddress}}/api/test/lead-only
-
 ### ME
-GET {{bitewing_HostAddress}}/api/auth/me
+GET {{host}}/api/auth/me

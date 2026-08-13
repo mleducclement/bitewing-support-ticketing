@@ -16,8 +16,4 @@ public class TestController : ControllerBase
     {
         _db = db;
     }
-    
-    [Authorize(Roles = "TeamLead")]
-    [HttpGet("lead-only")]
-    public IActionResult Secure() => Ok("team lead");
 }

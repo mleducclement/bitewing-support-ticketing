@@ -12,7 +12,12 @@ Solo portfolio project with a fictional client.
 
 - `src/bitewing/` — ASP.NET Core API
 - `docs/` — spec and decision log
-- `src/bitewing/Data` - AppDbContext and entities
+- `src/bitewing/Data/` — AppDbContext, ApplicationUser, Entities
+- `src/bitewing/Extensions` - Seeding
+- `src/bitewing/Controllers/` — API controllers
+- `src/bitewing/Dtos/` — request and response records, grouped by feature
+- `src/bitewing/Options/` — configuration-bound classes
+- `src/web/` — React frontend (Vite, TypeScript)
 
 ## Stack
 
@@ -32,8 +37,20 @@ ASP.NET Core Identity, Claude API for classification. Hosted on Render.
 - Data access is EF Core with Npgsql. Don't introduce Dapper or raw SQL
 - Migrations run automatically at startup via `MigrateAsync`
 - Connection string: `DATABASE_URL` env var in production, appsettings locally. NEVER HARDCODE IT
+- Auth is cookie-based Identity. Don't add JWT.
+- Authorization uses policies, not role attributes: `AgentAccess` (Agent or
+  TeamLead) and `TeamLeadOnly`. Don't write `[Authorize(Roles = "...")]`.
+- No self-registration. Accounts come from configuration seeding.
+- Never return entities from controllers. Define a DTO record.
+- Secrets come from environment variables. Never commit a password or
+  connection string.
+- Controllers stay thin: validate, call a service, return. Business logic and
+  state transitions belong in services, not controllers.
 
 ## Commands
 
 - `dotnet run --project src/bitewing` — run the API
 - `docker compose up -d` — start Postgres
+- `dotnet ef migrations add <Name> --project src/bitewing`
+- `docker build -f src/bitewing/Dockerfile -t bitewing src` — verify the
+  container builds before pushing
