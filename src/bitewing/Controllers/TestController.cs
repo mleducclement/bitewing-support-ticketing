@@ -14,8 +14,4 @@ public class TestController : ControllerBase
     {
         _db = db;
     }
-
-    [HttpGet("ping")]
-    public async Task<IActionResult> GetPings()
-        => Ok(await _db.Pings.ToListAsync());
 }

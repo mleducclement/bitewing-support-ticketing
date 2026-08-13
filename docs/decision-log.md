@@ -39,3 +39,11 @@
 **Two separate accuracy measurements**. By using two different accuracy reading, one static and accurate and one dynamic but biased upward, we can monitor the drift signal by comparing the live number with the static one.
 
 **Asynchronous Classification**. Background work runs on a hosted service polling a database work table rather than an external queue or job framework. At this scale the relevant design property is that classification is asynchronous and retryable. A broker/message queue would be incidental complexity.
+
+## Infrastructure
+
+**Single deployable rather than separate frontend and API.** ASP.NET Core serves the built React bundle from `wwwroot` and the API from the same origin. The alternative, frontend on a CDN, API deployed separately, is the more common option, but it requires CORS configuration, environment-specific API base URLs, and two deploy targets. At six users the former costs nothing and the simplicity is worth more. In development, Vite proxies `/api` to the API so that local behaviour matches production rather than requiring a CORS exception that only exists locally. The accepted cost is that a frontend-only change rebuilds and redeploys the whole application.
+
+11th of August 2026 - **PostgreSQL rather than SQL Server.** While MSSQL is still common in enterprise .NET, the fact that Postgres is readily available on the chosen host (Render), steered the decision towards it. I would have considered Azure with MSSQL but for a project of this size, an easy to deploy solution was preferable. Postgres runs locally in Docker via `docker-compose.yml` while it's a managed instance on Render.
+
+11th of August 2026 - **Migrations run automatically at startup.** `MigrateAsync` is called during application startup, so a deploy applies any pending migrations without manual intervention. This is not what a production system should do, a failed migration takes the application down on boot, and there is no review step between writing a migration and it running against live data. Running `dotnet ef database update` by hand against the deployed database is safer but easy to forget on a project where deploys are frequent. Automatic application was chosen because forgetting is the more likely failure.
