@@ -46,6 +46,10 @@ ASP.NET Core Identity, Claude API for classification. Hosted on Render.
   connection string.
 - Controllers stay thin: validate, call a service, return. Business logic and
   state transitions belong in services, not controllers.
+- After running the app in the background to test an endpoint manually,
+  stop that process once done (e.g. `taskkill //F //IM bitewing.exe` /
+  `dotnet.exe`). A leftover instance locks the build output and breaks the
+  next `dotnet build`/`dotnet test` run.
 
 ## Commands
 
