@@ -102,10 +102,12 @@ Invariants:
 
 ### Classification
 
-Stored per ticket. Two independent axes (§6).
+Stored per ticket, one row each (1:1). Two independent axes (§6).
 
 | Field            | Notes                                    |
 | ---------------- | ---------------------------------------- |
+| `id`             |                                          |
+| `ticket_id`      | FK to `Ticket`, unique                   |
 | `area`           | Nullable — see failure handling          |
 | `area_source`    | `Model` / `Human`                        |
 | `type`           | Nullable                                 |
@@ -120,15 +122,33 @@ Stored per ticket. Two independent axes (§6).
 
 Free-text, authored by an agent, attached to a ticket, timestamped. Internal only, never visible to customers. Used for handoff context and for an agent's own record of steps taken.
 
+| Field        | Notes                           |
+| ------------ | ------------------------------- |
+| `id`         |                                 |
+| `ticket_id`  | FK to `Ticket`                  |
+| `author_id`  | FK to `AspNetUsers.Id` (string) |
+| `body`       |                                 |
+| `created_at` |                                 |
+
 ### TicketEvent
 
 Append-only history: status changes, assignment changes, priority changes, classification corrections. Records actor and timestamp. This is what preserves "this ticket was handed off twice" after `handoff_flag` clears.
+
+| Field         | Notes                                                                                                                                                                     |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`          |                                                                                                                                                                           |
+| `ticket_id`   | FK to `Ticket`                                                                                                                                                            |
+| `actor_id`    | Nullable FK to `AspNetUsers.Id` (string). Null for system-triggered events (e.g. automatic expiry cancellation)                                                           |
+| `event_type`  | `StatusChanged` / `AssignmentChanged` / `PriorityChanged` / `ClassificationCorrected`                                                                                     |
+| `reason`      | Nullable free text. Required when `event_type` is `PriorityChanged` and the change is a downgrade (§5, "Downgrades require a reason"); optional on every other event type |
+| `occurred_at` |                                                                                                                                                                           |
 
 ### SpotCheck
 
 | Field                              | Notes                                                  |
 | ---------------------------------- | ------------------------------------------------------ |
-| `ticket_id`                        |                                                        |
+| `id`                               |                                                        |
+| `ticket_id`                        | FK to `Ticket`, unique                                 |
 | `agent_id`                         | Who was asked (FK to AspNetUsers.Id which is a string) |
 | `area_confirmed`, `type_confirmed` | Boolean                                                |
 | `responded_at`                     |                                                        |
@@ -147,7 +167,10 @@ supplies `Id`, `Email`, `UserName`, `PasswordHash` and related fields.
 
 Roles are handled by Identity's role system rather than a column on the user.
 Two roles are seeded at startup: `Agent` and `TeamLead`. Endpoints are protected
-with role-based authorisation attributes.
+by authorization policies (`AgentAccess`, satisfied by either role, and
+`TeamLeadOnly`) rather than role attributes directly, so the hierarchy is
+stated once and a third role later means editing policy definitions in one
+place instead of every endpoint.
 
 No self-registration. Accounts are created by seeding or by a Team Lead.
 
@@ -233,9 +256,13 @@ The generation script, its parameters, and its output are version-controlled. Th
 ## 7. Non-functional
 
 - Deployed to a public URL from week one, before feature work begins.
-- Stack: ASP.NET Core API + React frontend.
+- Single deployable. ASP.NET Core serves the built React bundle from `wwwroot`
+  and the API from the same origin, rather than a separately hosted frontend.
+- Stack: ASP.NET Core API + React frontend, PostgreSQL for storage.
+- Migrations run automatically at application startup.
 - UI is deliberately utilitarian. This is an internal tool for six agents.
-- Identity is used to handle authentication and authorization.
+- Identity is used to handle authentication and authorization, using
+  cookie-based auth rather than JWT.
 
 ---
 
