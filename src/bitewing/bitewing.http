@@ -24,3 +24,27 @@ Content-Type: application/json
 
 ### ME
 GET {{host}}/api/auth/me
+
+### CREATE TICKET
+POST {{host}}/api/tickets
+Content-Type: application/json
+
+{
+  "clinicName": "Maple Dental",
+  "customerName": "Jordan Reyes",
+  "customerEmail": "jordan@mapledental.example",
+  "subject": "Cannot access booking calendar",
+  "body": "Our front desk cannot see the calendar since this morning."
+}
+
+### CREATE TICKET - VALIDATION ERROR
+POST {{host}}/api/tickets
+Content-Type: application/json
+
+{
+  "clinicName": "Maple Dental",
+  "customerName": "Jordan Reyes",
+  "customerEmail": "not-an-email",
+  "subject": "",
+  "body": "Missing subject and bad email"
+}
