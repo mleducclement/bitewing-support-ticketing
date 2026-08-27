@@ -35,4 +35,37 @@ public class TicketService : ITicketService
 
         return ticket;
     }
+
+    public async Task<Ticket?> ClaimAsync(Guid ticketId, string agentId)
+    {
+        var ticket = await _db.Tickets.FindAsync(ticketId);
+        if (ticket is null) return null;
+
+        if (!TicketTransitions.IsLegal(ticket.Status, TicketStatus.InProgress))
+            throw new InvalidTicketTransitionException(ticket.Status, TicketStatus.InProgress);
+
+        ticket.Status = TicketStatus.InProgress;
+        ticket.AssigneeId = agentId;
+        ticket.HandoffFlag = false;
+        ticket.UpdatedAt = DateTime.UtcNow;
+
+        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt);
+
+        await _db.SaveChangesAsync();
+
+        return ticket;
+    }
+
+    private void AddEvent(Guid ticketId, string? actorId, TicketEventType eventType, string? reason, DateTime occurredAt)
+    {
+        _db.TicketEvents.Add(new TicketEvent
+        {
+            Id = Guid.NewGuid(),
+            TicketId = ticketId,
+            ActorId = actorId,
+            EventType = eventType,
+            Reason = reason,
+            OccurredAt = occurredAt
+        });
+    }
 }

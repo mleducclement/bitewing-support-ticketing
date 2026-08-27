@@ -48,3 +48,7 @@ Content-Type: application/json
   "subject": "",
   "body": "Missing subject and bad email"
 }
+
+### CLAIM TICKET
+# Log in first (AGENT LOGIN above), then replace {{ticketId}} with an id from CREATE TICKET
+POST {{host}}/api/tickets/{{ticketId}}/claim
