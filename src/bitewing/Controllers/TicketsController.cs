@@ -50,6 +50,27 @@ public class TicketsController : ControllerBase
     }
 
     [Authorize(Policy = "AgentAccess")]
+    [HttpPost("{id:guid}/release")]
+    public async Task<IActionResult> Release(Guid id)
+    {
+        var agentId = _userManager.GetUserId(User)!;
+
+        Ticket? ticket;
+        try
+        {
+            ticket = await _ticketService.ReleaseAsync(id, agentId);
+        }
+        catch (InvalidTicketTransitionException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+
+        if (ticket is null) return NotFound();
+
+        return Ok(ToResponse(ticket));
+    }
+
+    [Authorize(Policy = "AgentAccess")]
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] TicketQueueRequest filter)
     {

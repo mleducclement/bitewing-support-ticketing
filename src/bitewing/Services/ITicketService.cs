@@ -7,5 +7,6 @@ public interface ITicketService
 {
     Task<Ticket> CreateAsync(CreateTicketRequest request);
     Task<Ticket?> ClaimAsync(Guid ticketId, string agentId);
+    Task<Ticket?> ReleaseAsync(Guid ticketId, string agentId);
     Task<List<Ticket>> GetQueueAsync(TicketQueueRequest filter);
 }
