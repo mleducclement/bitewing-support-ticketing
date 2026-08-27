@@ -1,8 +1,17 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace bitewing.Data;
 
 public class Ticket
 {
     public Guid Id { get; set; }
+
+    // DB-generated, sequential. Displayed as CS-{n}; id (a GUID) isn't
+    // workable for agents to reference verbally/in writing to a clinic.
+    public int TicketNumber { get; set; }
+
+    [NotMapped]
+    public string DisplayId => $"CS-{TicketNumber}";
 
     public string Subject { get; set; } = string.Empty;
     public string Body { get; set; } = string.Empty;

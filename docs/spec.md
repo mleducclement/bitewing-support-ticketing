@@ -89,6 +89,7 @@ Invariants:
 | Field                                            | Notes                                                                       |
 | ------------------------------------------------ | --------------------------------------------------------------------------- |
 | `id`                                             |                                                                             |
+| `ticket_number`                                  | Auto-incrementing integer, unique, DB-generated. Displayed as `CS-{ticket_number}`; the human-readable reference agents give clinics over email, since `id` (a GUID) isn't workable for verbal/written reference |
 | `subject`, `body`                                | From the submission form                                                    |
 | `customer_name`, `customer_email`, `clinic_name` | From the submission form                                                    |
 | `status`                                         | See §3                                                                      |

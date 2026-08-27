@@ -4,6 +4,7 @@ namespace bitewing.Dtos.Tickets;
 
 public record TicketResponse(
     Guid Id,
+    string DisplayId,
     string Subject,
     string Body,
     string CustomerName,

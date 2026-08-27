@@ -142,6 +142,7 @@ public class TicketsController : ControllerBase
 
     private static TicketResponse ToResponse(Ticket ticket) => new(
         ticket.Id,
+        ticket.DisplayId,
         ticket.Subject,
         ticket.Body,
         ticket.CustomerName,

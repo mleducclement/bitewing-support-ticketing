@@ -28,6 +28,8 @@
 
 27th of August 2026 - **Claim and Unblock don't rely solely on `TicketTransitions.IsLegal`.** Both target `InProgress`, and the table's flat `(from, to)` pairs can't distinguish which action is being attempted from a shared target — `IsLegal(Open, InProgress)` and `IsLegal(Blocked, InProgress)` are both true. Claim explicitly rejects a ticket that's already `InProgress`/`Blocked` (`TicketAlreadyClaimedException`) before consulting the table; Unblock requires `Status == Blocked` directly rather than calling `IsLegal` at all. Every other transition has a unique target status, so this doesn't recur elsewhere in v1.
 
+27th of August 2026 - **Added a human-readable `ticket_number`, displayed as `CS-{n}`.** `id` is a GUID and unusable for the real workflow: an agent references a ticket to a clinic over email, the clinic cites it back weeks later when the issue recurs, and a new agent needs to recognize it as the same case to set `related_ticket_id`. DB-generated sequential integer, unique-indexed; formatting (`CS-` prefix) lives on the entity as a computed `DisplayId` so there's one source of truth. Looking a ticket up *by* its display number is future work — no search/detail UI exists yet to use it.
+
 27th of August 2026 - **Queue filterable by `handoff_flag`, ahead of spec.** Spec §5 lists status/priority/assignee/area as queue filters; `handoff_flag` isn't among them. Added so an agent picking up extra tickets can surface handoffs first, or handoff-only, rather than let them sit in the queue behind other `Open` tickets. Area filter is deferred until the classification worker exists (§6).
 
 ## Scope

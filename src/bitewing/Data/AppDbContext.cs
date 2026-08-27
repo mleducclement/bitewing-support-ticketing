@@ -20,6 +20,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<Ticket>(entity =>
         {
+            entity.Property(t => t.TicketNumber)
+                .ValueGeneratedOnAdd();
+
+            entity.HasIndex(t => t.TicketNumber)
+                .IsUnique();
+
             entity.HasOne(t => t.Assignee)
                 .WithMany()
                 .HasForeignKey(t => t.AssigneeId)

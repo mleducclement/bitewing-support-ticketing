@@ -46,6 +46,33 @@ public class TicketCreationTests : TicketsTestBase
         Assert.Equal(request.Body, persisted.Body);
         Assert.Null(persisted.AssigneeId);
         Assert.False(persisted.HandoffFlag);
+
+        Assert.True(persisted.TicketNumber > 0);
+        Assert.Equal($"CS-{persisted.TicketNumber}", body.DisplayId);
+    }
+
+    [Fact]
+    public async Task Create_MultipleTickets_AssignsSequentialTicketNumbers()
+    {
+        var request = new CreateTicketRequest(
+            "Maple Dental",
+            "Jordan Reyes",
+            "jordan@mapledental.example",
+            "Cannot access booking calendar",
+            "Our front desk cannot see the calendar since this morning.");
+
+        var firstResponse = await Client.PostAsJsonAsync("/api/tickets", request);
+        var first = await firstResponse.Content.ReadFromJsonAsync<TicketResponse>();
+
+        var secondResponse = await Client.PostAsJsonAsync("/api/tickets", request);
+        var second = await secondResponse.Content.ReadFromJsonAsync<TicketResponse>();
+
+        using var scope = Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var firstPersisted = await db.Tickets.FindAsync(first!.Id);
+        var secondPersisted = await db.Tickets.FindAsync(second!.Id);
+
+        Assert.Equal(firstPersisted!.TicketNumber + 1, secondPersisted!.TicketNumber);
     }
 
     [Fact]
