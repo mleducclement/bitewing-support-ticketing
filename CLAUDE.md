@@ -7,6 +7,7 @@ Solo portfolio project with a fictional client.
 
 - `docs/spec.md` — states, transitions, entities, v1 scope
 - `docs/decision-log.md` — why things are the way they are
+- `docs/checklist.md` — where we are in the project and what is left
 
 ## Layout
 

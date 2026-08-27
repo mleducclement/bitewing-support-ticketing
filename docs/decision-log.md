@@ -22,6 +22,8 @@
 
 **Auto-cancel rather than auto-resolve.** Long-term blocked tickets did not get solved. Counting them as resolved would corrupt the metric the client wants.
 
+27th of August 2026 - **Queue filterable by `handoff_flag`, ahead of spec.** Spec §5 lists status/priority/assignee/area as queue filters; `handoff_flag` isn't among them. Added so an agent picking up extra tickets can surface handoffs first, or handoff-only, rather than let them sit in the queue behind other `Open` tickets. Area filter is deferred until the classification worker exists (§6).
+
 ## Scope
 
 **Web form intake rather than email ingestion.** Email ingestion requires mailbox polling or webhooks, reply threading, bounce and auto-responder handling, quoted-text stripping, and attachments, probably the entire build budget. The client accepted this with the explicit condition that email remain addable later, which the pluggable-intake design supports. Cost is that her customers have emailed the same address for years and she will run both channels during transition.
