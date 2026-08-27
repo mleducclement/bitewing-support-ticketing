@@ -110,6 +110,29 @@ public class TicketService : ITicketService
         return ticket;
     }
 
+    public async Task<Ticket?> UnblockAsync(Guid ticketId, string agentId, bool isTeamLead)
+    {
+        var ticket = await _db.Tickets.FindAsync(ticketId);
+        if (ticket is null) return null;
+
+        if (ticket.Status != TicketStatus.Blocked)
+            throw new InvalidTicketTransitionException(ticket.Status, TicketStatus.InProgress);
+
+        EnsureOwnerOrTeamLead(ticket, agentId, isTeamLead);
+
+        var previousStatus = ticket.Status;
+        ticket.Status = TicketStatus.InProgress;
+        ticket.BlockedSince = null;
+        ticket.UpdatedAt = DateTime.UtcNow;
+
+        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus, ticket.Status);
+
+        await _db.SaveChangesAsync();
+        await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
+
+        return ticket;
+    }
+
     public async Task<List<Ticket>> GetQueueAsync(TicketQueueRequest filter)
     {
         var query = _db.Tickets.Include(t => t.Assignee).AsQueryable();

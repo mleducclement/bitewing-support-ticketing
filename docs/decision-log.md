@@ -26,6 +26,8 @@
 
 27th of August 2026 - **Status transitions restricted to the ticket's assignee, with a TeamLead override.** Spec §2 says an Agent may "change status of tickets they own," which Claim and Release (already shipped) didn't enforce. Added the check starting with Block and retrofitted it onto Release; Claim is exempt since the ticket has no owner yet at that point. TeamLead bypasses the check per §2's "everything an Agent can do."
 
+27th of August 2026 - **Claim and Unblock don't rely solely on `TicketTransitions.IsLegal`.** Both target `InProgress`, and the table's flat `(from, to)` pairs can't distinguish which action is being attempted from a shared target — `IsLegal(Open, InProgress)` and `IsLegal(Blocked, InProgress)` are both true. Claim explicitly rejects a ticket that's already `InProgress`/`Blocked` (`TicketAlreadyClaimedException`) before consulting the table; Unblock requires `Status == Blocked` directly rather than calling `IsLegal` at all. Every other transition has a unique target status, so this doesn't recur elsewhere in v1.
+
 27th of August 2026 - **Queue filterable by `handoff_flag`, ahead of spec.** Spec §5 lists status/priority/assignee/area as queue filters; `handoff_flag` isn't among them. Added so an agent picking up extra tickets can surface handoffs first, or handoff-only, rather than let them sit in the queue behind other `Open` tickets. Area filter is deferred until the classification worker exists (§6).
 
 ## Scope

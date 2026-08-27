@@ -298,3 +298,4 @@ Listed so that each can be declined by pointing at this section.
 ## 9. Open items
 
 - Whether spot-check prompts should be capped per agent per day, the client raised uneven random distribution and it was not resolved
+- Whether TeamLead-mediated release/reassignment still scales once the team grows past its current size (six agents plus one lead). At this size a lead manually releasing a ticket is a single click, not a bottleneck; a larger or multi-team setup might need it revisited alongside v2's "bulk reassign to a named agent" (§8)

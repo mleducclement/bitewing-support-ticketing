@@ -9,5 +9,6 @@ public interface ITicketService
     Task<Ticket?> ClaimAsync(Guid ticketId, string agentId);
     Task<Ticket?> ReleaseAsync(Guid ticketId, string agentId, bool isTeamLead);
     Task<Ticket?> BlockAsync(Guid ticketId, string agentId, bool isTeamLead);
+    Task<Ticket?> UnblockAsync(Guid ticketId, string agentId, bool isTeamLead);
     Task<List<Ticket>> GetQueueAsync(TicketQueueRequest filter);
 }
