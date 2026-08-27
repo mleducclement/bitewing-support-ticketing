@@ -132,6 +132,32 @@ public class TicketsController : ControllerBase
     }
 
     [Authorize(Policy = "AgentAccess")]
+    [HttpPost("{id:guid}/resolve")]
+    public async Task<IActionResult> Resolve(Guid id)
+    {
+        var agentId = _userManager.GetUserId(User)!;
+        var isTeamLead = User.IsInRole("TeamLead");
+
+        Ticket? ticket;
+        try
+        {
+            ticket = await _ticketService.ResolveAsync(id, agentId, isTeamLead);
+        }
+        catch (InvalidTicketTransitionException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+        catch (UnauthorizedTicketActionException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
+        }
+
+        if (ticket is null) return NotFound();
+
+        return Ok(ToResponse(ticket));
+    }
+
+    [Authorize(Policy = "AgentAccess")]
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] TicketQueueRequest filter)
     {

@@ -65,6 +65,10 @@ POST {{host}}/api/tickets/70bad7ca-00f7-4b8f-be6b-5c0b78808493/block
 # Log in first (AGENT LOGIN above), then replace {{ticketId}} with a blocked ticket's id
 POST {{host}}/api/tickets/70bad7ca-00f7-4b8f-be6b-5c0b78808493/unblock
 
+### RESOLVE TICKET
+# Log in first (AGENT LOGIN above), then replace {{ticketId}} with a claimed ticket's id
+POST {{host}}/api/tickets/70bad7ca-00f7-4b8f-be6b-5c0b78808493/resolve
+
 ### GET ALL TICKETS
 # Log in first (AGENT LOGIN above)
 GET {{host}}/api/tickets
