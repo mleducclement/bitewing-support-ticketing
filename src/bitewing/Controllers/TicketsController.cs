@@ -54,15 +54,46 @@ public class TicketsController : ControllerBase
     public async Task<IActionResult> Release(Guid id)
     {
         var agentId = _userManager.GetUserId(User)!;
+        var isTeamLead = User.IsInRole("TeamLead");
 
         Ticket? ticket;
         try
         {
-            ticket = await _ticketService.ReleaseAsync(id, agentId);
+            ticket = await _ticketService.ReleaseAsync(id, agentId, isTeamLead);
         }
         catch (InvalidTicketTransitionException ex)
         {
             return Conflict(new { message = ex.Message });
+        }
+        catch (UnauthorizedTicketActionException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
+        }
+
+        if (ticket is null) return NotFound();
+
+        return Ok(ToResponse(ticket));
+    }
+
+    [Authorize(Policy = "AgentAccess")]
+    [HttpPost("{id:guid}/block")]
+    public async Task<IActionResult> Block(Guid id)
+    {
+        var agentId = _userManager.GetUserId(User)!;
+        var isTeamLead = User.IsInRole("TeamLead");
+
+        Ticket? ticket;
+        try
+        {
+            ticket = await _ticketService.BlockAsync(id, agentId, isTeamLead);
+        }
+        catch (InvalidTicketTransitionException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+        catch (UnauthorizedTicketActionException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
         }
 
         if (ticket is null) return NotFound();
@@ -90,5 +121,6 @@ public class TicketsController : ControllerBase
         ticket.Priority,
         ticket.CreatedAt,
         ticket.Assignee is null ? null : $"{ticket.Assignee.FirstName} {ticket.Assignee.LastName}",
-        ticket.HandoffFlag);
+        ticket.HandoffFlag,
+        ticket.BlockedSince);
 }

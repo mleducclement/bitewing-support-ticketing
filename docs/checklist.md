@@ -16,7 +16,8 @@ Derived from `docs/spec.md` §3–§8 and `docs/decision-log.md`. Update as work
 Transition logic lives in `TicketService`, validated centrally via `TicketTransitions.IsLegal`.
 
 - [x] Claim: Open → InProgress (tested; concurrency race accepted as v1 risk; writes a `StatusChanged` TicketEvent)
-- [x] Release: InProgress/Blocked → Open (tested from both source states; sets `handoff_flag`, clears `assignee_id`; also clears `blocked_since` when releasing from Blocked; writes a `StatusChanged` TicketEvent)
+- [x] Release: InProgress/Blocked → Open (tested from both source states; sets `handoff_flag`, clears `assignee_id`; also clears `blocked_since` when releasing from Blocked; restricted to the ticket's assignee or a TeamLead; writes a `StatusChanged` TicketEvent with from/to status)
+- [x] Block: InProgress → Blocked (sets `blocked_since`; restricted to the ticket's assignee or a TeamLead; writes a `StatusChanged` TicketEvent with from/to status)
 - [ ] Unblock: Blocked → InProgress (manual, customer replied outside the app)
 - [ ] Resolve: InProgress → Resolved
 - [ ] Cancel: Open/InProgress/Blocked → Cancelled (manual — duplicate/spam/withdrawn)

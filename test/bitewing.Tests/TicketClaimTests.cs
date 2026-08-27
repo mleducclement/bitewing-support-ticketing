@@ -43,6 +43,8 @@ public class TicketClaimTests : TicketsTestBase
         var claimEvent = Assert.Single(events);
         Assert.Equal(TicketEventType.StatusChanged, claimEvent.EventType);
         Assert.Equal(agent.Id, claimEvent.ActorId);
+        Assert.Equal(TicketStatus.Open, claimEvent.FromStatus);
+        Assert.Equal(TicketStatus.InProgress, claimEvent.ToStatus);
         Assert.Null(claimEvent.Reason);
     }
 

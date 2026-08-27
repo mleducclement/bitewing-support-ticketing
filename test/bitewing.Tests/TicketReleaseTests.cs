@@ -55,6 +55,8 @@ public class TicketReleaseTests : TicketsTestBase
         var releaseEvent = events.Last();
         Assert.Equal(TicketEventType.StatusChanged, releaseEvent.EventType);
         Assert.Equal(agent!.Id, releaseEvent.ActorId);
+        Assert.Equal(TicketStatus.InProgress, releaseEvent.FromStatus);
+        Assert.Equal(TicketStatus.Open, releaseEvent.ToStatus);
         Assert.Null(releaseEvent.Reason);
     }
 
@@ -89,6 +91,33 @@ public class TicketReleaseTests : TicketsTestBase
         Assert.Null(persisted.AssigneeId);
         Assert.True(persisted.HandoffFlag);
         Assert.Null(persisted.BlockedSince);
+
+        var events = await verifyDb.TicketEvents.Where(e => e.TicketId == ticketId).OrderBy(e => e.OccurredAt).ToListAsync();
+        var releaseEvent = events.Last();
+        Assert.Equal(TicketStatus.Blocked, releaseEvent.FromStatus);
+        Assert.Equal(TicketStatus.Open, releaseEvent.ToStatus);
+    }
+
+    [Fact]
+    public async Task Release_NotOwner_ReturnsForbidden()
+    {
+        var ticketId = await CreateInProgressTicketAsync();
+
+        await LoginAsync(SeededSecondAgentEmail);
+        var response = await Client.PostAsync($"/api/tickets/{ticketId}/release", null);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Release_ByTeamLead_Succeeds()
+    {
+        var ticketId = await CreateInProgressTicketAsync();
+
+        await LoginAsync(SeededLeadEmail);
+        var response = await Client.PostAsync($"/api/tickets/{ticketId}/release", null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]

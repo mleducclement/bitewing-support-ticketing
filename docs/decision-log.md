@@ -22,6 +22,10 @@
 
 **Auto-cancel rather than auto-resolve.** Long-term blocked tickets did not get solved. Counting them as resolved would corrupt the metric the client wants.
 
+27th of August 2026 - **`TicketEvent` records from/to status for `StatusChanged` events.** The original shape (event type, actor, timestamp) couldn't answer what a status change actually was — a ticket with several transitions in its history was unreadable from the event log alone. Added nullable `FromStatus`/`ToStatus`, populated only for `StatusChanged`. Retrofitted onto Claim and Release when Block was added, since all three share the same event-writing code path.
+
+27th of August 2026 - **Status transitions restricted to the ticket's assignee, with a TeamLead override.** Spec §2 says an Agent may "change status of tickets they own," which Claim and Release (already shipped) didn't enforce. Added the check starting with Block and retrofitted it onto Release; Claim is exempt since the ticket has no owner yet at that point. TeamLead bypasses the check per §2's "everything an Agent can do."
+
 27th of August 2026 - **Queue filterable by `handoff_flag`, ahead of spec.** Spec §5 lists status/priority/assignee/area as queue filters; `handoff_flag` isn't among them. Added so an agent picking up extra tickets can surface handoffs first, or handoff-only, rather than let them sit in the queue behind other `Open` tickets. Area filter is deferred until the classification worker exists (§6).
 
 ## Scope

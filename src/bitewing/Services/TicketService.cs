@@ -45,12 +45,13 @@ public class TicketService : ITicketService
         if (!TicketTransitions.IsLegal(ticket.Status, TicketStatus.InProgress))
             throw new InvalidTicketTransitionException(ticket.Status, TicketStatus.InProgress);
 
+        var previousStatus = ticket.Status;
         ticket.Status = TicketStatus.InProgress;
         ticket.AssigneeId = agentId;
         ticket.HandoffFlag = false;
         ticket.UpdatedAt = DateTime.UtcNow;
 
-        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt);
+        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus, ticket.Status);
 
         await _db.SaveChangesAsync();
         await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
@@ -58,7 +59,7 @@ public class TicketService : ITicketService
         return ticket;
     }
 
-    public async Task<Ticket?> ReleaseAsync(Guid ticketId, string agentId)
+    public async Task<Ticket?> ReleaseAsync(Guid ticketId, string agentId, bool isTeamLead)
     {
         var ticket = await _db.Tickets.FindAsync(ticketId);
         if (ticket is null) return null;
@@ -66,13 +67,41 @@ public class TicketService : ITicketService
         if (!TicketTransitions.IsLegal(ticket.Status, TicketStatus.Open))
             throw new InvalidTicketTransitionException(ticket.Status, TicketStatus.Open);
 
+        if (!isTeamLead && ticket.AssigneeId != agentId)
+            throw new UnauthorizedTicketActionException(ticket.Id);
+
+        var previousStatus = ticket.Status;
         ticket.Status = TicketStatus.Open;
         ticket.AssigneeId = null;
         ticket.HandoffFlag = true;
         ticket.BlockedSince = null;
         ticket.UpdatedAt = DateTime.UtcNow;
 
-        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt);
+        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus, ticket.Status);
+
+        await _db.SaveChangesAsync();
+        await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
+
+        return ticket;
+    }
+
+    public async Task<Ticket?> BlockAsync(Guid ticketId, string agentId, bool isTeamLead)
+    {
+        var ticket = await _db.Tickets.FindAsync(ticketId);
+        if (ticket is null) return null;
+
+        if (!TicketTransitions.IsLegal(ticket.Status, TicketStatus.Blocked))
+            throw new InvalidTicketTransitionException(ticket.Status, TicketStatus.Blocked);
+
+        if (!isTeamLead && ticket.AssigneeId != agentId)
+            throw new UnauthorizedTicketActionException(ticket.Id);
+
+        var previousStatus = ticket.Status;
+        ticket.Status = TicketStatus.Blocked;
+        ticket.BlockedSince = DateTime.UtcNow;
+        ticket.UpdatedAt = DateTime.UtcNow;
+
+        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus, ticket.Status);
 
         await _db.SaveChangesAsync();
         await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
@@ -102,7 +131,8 @@ public class TicketService : ITicketService
             .ToListAsync();
     }
 
-    private void AddEvent(Guid ticketId, string? actorId, TicketEventType eventType, string? reason, DateTime occurredAt)
+    private void AddEvent(Guid ticketId, string? actorId, TicketEventType eventType, string? reason, DateTime occurredAt,
+        TicketStatus? fromStatus = null, TicketStatus? toStatus = null)
     {
         _db.TicketEvents.Add(new TicketEvent
         {
@@ -110,6 +140,8 @@ public class TicketService : ITicketService
             TicketId = ticketId,
             ActorId = actorId,
             EventType = eventType,
+            FromStatus = fromStatus,
+            ToStatus = toStatus,
             Reason = reason,
             OccurredAt = occurredAt
         });

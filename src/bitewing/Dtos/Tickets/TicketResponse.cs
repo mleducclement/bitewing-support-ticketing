@@ -13,5 +13,6 @@ public record TicketResponse(
     TicketPriority Priority,
     DateTime CreatedAt,
     string? AssigneeName,
-    bool HandoffFlag
+    bool HandoffFlag,
+    DateTime? BlockedSince
 );
