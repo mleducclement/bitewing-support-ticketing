@@ -53,7 +53,7 @@ Content-Type: application/json
 # Log in first (AGENT LOGIN above), then replace {{ticketId}} with an id from CREATE TICKET
 POST {{host}}/api/tickets/70bad7ca-00f7-4b8f-be6b-5c0b78808493/claim
 
-### RELEASE TICKET
+### RELEASE TICKET 
 # Log in first (AGENT LOGIN above), then replace {{ticketId}} with a claimed ticket's id
 POST {{host}}/api/tickets/70bad7ca-00f7-4b8f-be6b-5c0b78808493/release
 
@@ -68,6 +68,16 @@ POST {{host}}/api/tickets/70bad7ca-00f7-4b8f-be6b-5c0b78808493/unblock
 ### RESOLVE TICKET
 # Log in first (AGENT LOGIN above), then replace {{ticketId}} with a claimed ticket's id
 POST {{host}}/api/tickets/70bad7ca-00f7-4b8f-be6b-5c0b78808493/resolve
+
+### CANCEL TICKET
+# Log in first (AGENT LOGIN above), then replace {{ticketId}} with a ticket's id
+# reason: 0=Duplicate, 1=Spam, 2=Withdrawn (3=Expired is rejected - automatic-only)
+POST {{host}}/api/tickets/70bad7ca-00f7-4b8f-be6b-5c0b78808493/cancel
+Content-Type: application/json
+
+{
+  "reason": 0
+}
 
 ### GET ALL TICKETS
 # Log in first (AGENT LOGIN above)

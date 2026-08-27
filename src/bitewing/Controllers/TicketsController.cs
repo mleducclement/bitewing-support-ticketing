@@ -158,6 +158,32 @@ public class TicketsController : ControllerBase
     }
 
     [Authorize(Policy = "AgentAccess")]
+    [HttpPost("{id:guid}/cancel")]
+    public async Task<IActionResult> Cancel(Guid id, CancelTicketRequest request)
+    {
+        var agentId = _userManager.GetUserId(User)!;
+        var isTeamLead = User.IsInRole("TeamLead");
+
+        Ticket? ticket;
+        try
+        {
+            ticket = await _ticketService.CancelAsync(id, agentId, isTeamLead, request.Reason!.Value);
+        }
+        catch (InvalidTicketTransitionException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+        catch (UnauthorizedTicketActionException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
+        }
+
+        if (ticket is null) return NotFound();
+
+        return Ok(ToResponse(ticket));
+    }
+
+    [Authorize(Policy = "AgentAccess")]
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] TicketQueueRequest filter)
     {
@@ -179,5 +205,6 @@ public class TicketsController : ControllerBase
         ticket.CreatedAt,
         ticket.Assignee is null ? null : $"{ticket.Assignee.FirstName} {ticket.Assignee.LastName}",
         ticket.HandoffFlag,
-        ticket.BlockedSince);
+        ticket.BlockedSince,
+        ticket.CancellationReason);
 }

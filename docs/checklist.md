@@ -20,7 +20,7 @@ Transition logic lives in `TicketService`. Most transitions are validated via `T
 - [x] Block: InProgress → Blocked (sets `blocked_since`; restricted to the ticket's assignee or a TeamLead; writes a `StatusChanged` TicketEvent with from/to status)
 - [x] Unblock: Blocked → InProgress (manual, customer replied outside the app; restricted to the ticket's assignee or a TeamLead; writes a `StatusChanged` TicketEvent with from/to status)
 - [x] Resolve: InProgress → Resolved (restricted to the ticket's assignee or a TeamLead; writes a `StatusChanged` TicketEvent with from/to status)
-- [ ] Cancel: Open/InProgress/Blocked → Cancelled (manual — duplicate/spam/withdrawn)
+- [x] Cancel: Open/InProgress/Blocked → Cancelled (manual — duplicate/spam/withdrawn; ownership enforced except when cancelling an unowned Open ticket; clears handoff_flag and blocked_since; writes a `StatusChanged` TicketEvent with from/to status and the reason)
 - [ ] Auto-cancel: Blocked → Cancelled once `blocked_since` exceeds `Settings.blocked_expiry_days` (background job)
 - [ ] TicketEvent written on every transition above — pattern established on Claim (`TicketService.AddEvent`, one combined `StatusChanged` row per transition); remaining transitions still need it
 

@@ -155,6 +155,32 @@ public class TicketService : ITicketService
         return ticket;
     }
 
+    public async Task<Ticket?> CancelAsync(Guid ticketId, string agentId, bool isTeamLead, CancellationReason reason)
+    {
+        var ticket = await _db.Tickets.FindAsync(ticketId);
+        if (ticket is null) return null;
+
+        if (!TicketTransitions.IsLegal(ticket.Status, TicketStatus.Cancelled))
+            throw new InvalidTicketTransitionException(ticket.Status, TicketStatus.Cancelled);
+
+        if (ticket.Status != TicketStatus.Open)
+            EnsureOwnerOrTeamLead(ticket, agentId, isTeamLead);
+
+        var previousStatus = ticket.Status;
+        ticket.Status = TicketStatus.Cancelled;
+        ticket.CancellationReason = reason;
+        ticket.BlockedSince = null;
+        ticket.HandoffFlag = false;
+        ticket.UpdatedAt = DateTime.UtcNow;
+
+        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, reason.ToString(), ticket.UpdatedAt, previousStatus, ticket.Status);
+
+        await _db.SaveChangesAsync();
+        await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
+
+        return ticket;
+    }
+
     public async Task<List<Ticket>> GetQueueAsync(TicketQueueRequest filter)
     {
         var query = _db.Tickets.Include(t => t.Assignee).AsQueryable();

@@ -15,5 +15,6 @@ public record TicketResponse(
     DateTime CreatedAt,
     string? AssigneeName,
     bool HandoffFlag,
-    DateTime? BlockedSince
+    DateTime? BlockedSince,
+    CancellationReason? CancellationReason
 );
