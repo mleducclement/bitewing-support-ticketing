@@ -7,10 +7,8 @@ public static class DatabaseExtensions
 {
     public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration["DATABASE_URL"] ?? configuration.GetConnectionString("Default");
-
         services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(connectionString));
+            options.UseNpgsql(configuration["DATABASE_URL"] ?? configuration.GetConnectionString("Default")));
 
         return services;
     }
