@@ -11,5 +11,7 @@ public record TicketResponse(
     string ClinicName,
     TicketStatus Status,
     TicketPriority Priority,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    string? AssigneeName,
+    bool HandoffFlag
 );

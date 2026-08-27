@@ -15,18 +15,18 @@ Derived from `docs/spec.md` §3–§8 and `docs/decision-log.md`. Update as work
 
 Transition logic lives in `TicketService`, validated centrally via `TicketTransitions.IsLegal`.
 
-- [x] Claim: Open → InProgress (tested; concurrency race accepted as v1 risk, not yet logged)
+- [x] Claim: Open → InProgress (tested; concurrency race accepted as v1 risk; writes a `StatusChanged` TicketEvent)
 - [ ] Release: InProgress/Blocked → Open (sets `handoff_flag`, clears `assignee_id`)
 - [ ] Block: InProgress → Blocked (sets `blocked_since`)
 - [ ] Unblock: Blocked → InProgress (manual, customer replied outside the app)
 - [ ] Resolve: InProgress → Resolved
 - [ ] Cancel: Open/InProgress/Blocked → Cancelled (manual — duplicate/spam/withdrawn)
 - [ ] Auto-cancel: Blocked → Cancelled once `blocked_since` exceeds `Settings.blocked_expiry_days` (background job)
-- [ ] TicketEvent written on every transition above (currently only stubbed out — Claim doesn't write one yet, deliberately deferred)
+- [ ] TicketEvent written on every transition above — pattern established on Claim (`TicketService.AddEvent`, one combined `StatusChanged` row per transition); remaining transitions still need it
 
 ## Ticket operations (spec §5)
 
-- [ ] Queue endpoint — list, filterable by status/priority/assignee/area, sorted priority-then-age
+- [x] Queue endpoint (`GET /api/tickets`) — filterable by status/priority/assignee/handoff_flag, sorted priority-then-age; area filter deferred until classification worker exists
 - [ ] Ticket detail endpoint — full ticket + notes + event history + classification
 - [ ] Priority change endpoint — any agent, any ticket including unowned; downgrade requires a reason; writes event
 - [ ] Bulk unassign endpoint — TeamLead only, returns tickets to Open with `handoff_flag` set, priority untouched

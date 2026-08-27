@@ -49,6 +49,15 @@ public class TicketsController : ControllerBase
         return Ok(ToResponse(ticket));
     }
 
+    [Authorize(Policy = "AgentAccess")]
+    [HttpGet]
+    public async Task<IActionResult> Get([FromQuery] TicketQueueRequest filter)
+    {
+        var tickets = await _ticketService.GetQueueAsync(filter);
+
+        return Ok(tickets.Select(ToResponse));
+    }
+
     private static TicketResponse ToResponse(Ticket ticket) => new(
         ticket.Id,
         ticket.Subject,
@@ -58,5 +67,7 @@ public class TicketsController : ControllerBase
         ticket.ClinicName,
         ticket.Status,
         ticket.Priority,
-        ticket.CreatedAt);
+        ticket.CreatedAt,
+        ticket.Assignee is null ? null : $"{ticket.Assignee.FirstName} {ticket.Assignee.LastName}",
+        ticket.HandoffFlag);
 }

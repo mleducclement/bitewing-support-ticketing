@@ -1,5 +1,6 @@
 using bitewing.Data;
 using bitewing.Dtos.Tickets;
+using Microsoft.EntityFrameworkCore;
 
 namespace bitewing.Services;
 
@@ -52,8 +53,31 @@ public class TicketService : ITicketService
         AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt);
 
         await _db.SaveChangesAsync();
+        await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
 
         return ticket;
+    }
+
+    public async Task<List<Ticket>> GetQueueAsync(TicketQueueRequest filter)
+    {
+        var query = _db.Tickets.Include(t => t.Assignee).AsQueryable();
+
+        if (filter.Status is not null)
+            query = query.Where(t => t.Status == filter.Status);
+
+        if (filter.Priority is not null)
+            query = query.Where(t => t.Priority == filter.Priority);
+
+        if (filter.AssigneeId is not null)
+            query = query.Where(t => t.AssigneeId == filter.AssigneeId);
+
+        if (filter.HandoffFlag is not null)
+            query = query.Where(t => t.HandoffFlag == filter.HandoffFlag);
+
+        return await query
+            .OrderByDescending(t => t.Priority)
+            .ThenBy(t => t.CreatedAt)
+            .ToListAsync();
     }
 
     private void AddEvent(Guid ticketId, string? actorId, TicketEventType eventType, string? reason, DateTime occurredAt)

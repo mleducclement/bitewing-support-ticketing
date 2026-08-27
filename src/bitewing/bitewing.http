@@ -51,4 +51,13 @@ Content-Type: application/json
 
 ### CLAIM TICKET
 # Log in first (AGENT LOGIN above), then replace {{ticketId}} with an id from CREATE TICKET
-POST {{host}}/api/tickets/{{ticketId}}/claim
+POST {{host}}/api/tickets/70bad7ca-00f7-4b8f-be6b-5c0b78808493/claim
+
+### GET ALL TICKETS
+# Log in first (AGENT LOGIN above)
+GET {{host}}/api/tickets
+
+### GET TICKETS - FILTERED
+# status: Open/InProgress/Blocked/Resolved/Cancelled
+# priority: Low/Normal/Urgent
+GET {{host}}/api/tickets?status=Open&priority=Urgent
