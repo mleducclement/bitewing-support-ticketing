@@ -1,6 +1,7 @@
 using bitewing.Configuration;
 using bitewing.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace bitewing.Extensions;
 
@@ -14,9 +15,19 @@ public static class SeedDataExtensions
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         await SeedRolesAsync(roleManager);
         await SeedUsersAsync(userManager, configuration, logger);
+        await SeedSettingsAsync(db);
+    }
+
+    private static async Task SeedSettingsAsync(AppDbContext db)
+    {
+        if (await db.Settings.AnyAsync()) return;
+
+        db.Settings.Add(new Settings());
+        await db.SaveChangesAsync();
     }
 
     private static async Task SeedUsersAsync(UserManager<ApplicationUser> userManager, IConfiguration configuration, ILogger<Program> logger)

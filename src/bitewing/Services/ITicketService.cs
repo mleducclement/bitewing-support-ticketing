@@ -12,5 +12,6 @@ public interface ITicketService
     Task<Ticket?> UnblockAsync(Guid ticketId, string agentId, bool isTeamLead);
     Task<Ticket?> ResolveAsync(Guid ticketId, string agentId, bool isTeamLead);
     Task<Ticket?> CancelAsync(Guid ticketId, string agentId, bool isTeamLead, CancellationReason reason);
+    Task<int> AutoCancelExpiredTicketsAsync();
     Task<List<Ticket>> GetQueueAsync(TicketQueueRequest filter);
 }

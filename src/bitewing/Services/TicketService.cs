@@ -181,6 +181,33 @@ public class TicketService : ITicketService
         return ticket;
     }
 
+    public async Task<int> AutoCancelExpiredTicketsAsync()
+    {
+        var settings = await _db.Settings.FirstAsync();
+        var threshold = DateTime.UtcNow.AddDays(-settings.BlockedExpiryDays);
+
+        var expiredTickets = await _db.Tickets
+            .Where(t => t.Status == TicketStatus.Blocked && t.BlockedSince != null && t.BlockedSince < threshold)
+            .ToListAsync();
+
+        foreach (var ticket in expiredTickets)
+        {
+            var previousStatus = ticket.Status;
+            ticket.Status = TicketStatus.Cancelled;
+            ticket.CancellationReason = CancellationReason.Expired;
+            ticket.BlockedSince = null;
+            ticket.HandoffFlag = false;
+            ticket.UpdatedAt = DateTime.UtcNow;
+
+            AddEvent(ticket.Id, null, TicketEventType.StatusChanged, CancellationReason.Expired.ToString(), ticket.UpdatedAt, previousStatus, ticket.Status);
+        }
+
+        if (expiredTickets.Count > 0)
+            await _db.SaveChangesAsync();
+
+        return expiredTickets.Count;
+    }
+
     public async Task<List<Ticket>> GetQueueAsync(TicketQueueRequest filter)
     {
         var query = _db.Tickets.Include(t => t.Assignee).AsQueryable();
