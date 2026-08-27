@@ -39,6 +39,10 @@ public class TicketsController : ControllerBase
         {
             ticket = await _ticketService.ClaimAsync(id, agentId);
         }
+        catch (TicketAlreadyClaimedException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
         catch (InvalidTicketTransitionException ex)
         {
             return Conflict(new { message = ex.Message });

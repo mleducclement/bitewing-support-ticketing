@@ -69,6 +69,9 @@ public class TicketClaimTests : TicketsTestBase
 
         var second = await Client.PostAsync($"/api/tickets/{ticketId}/claim", null);
         Assert.Equal(HttpStatusCode.Conflict, second.StatusCode);
+
+        var problem = await second.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+        Assert.Equal("This ticket has already been claimed.", problem!["message"]);
     }
 
     [Fact]

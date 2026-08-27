@@ -42,6 +42,9 @@ public class TicketService : ITicketService
         var ticket = await _db.Tickets.FindAsync(ticketId);
         if (ticket is null) return null;
 
+        if (ticket.Status is TicketStatus.InProgress or TicketStatus.Blocked)
+            throw new TicketAlreadyClaimedException(ticket.Id);
+
         if (!TicketTransitions.IsLegal(ticket.Status, TicketStatus.InProgress))
             throw new InvalidTicketTransitionException(ticket.Status, TicketStatus.InProgress);
 
@@ -67,8 +70,7 @@ public class TicketService : ITicketService
         if (!TicketTransitions.IsLegal(ticket.Status, TicketStatus.Open))
             throw new InvalidTicketTransitionException(ticket.Status, TicketStatus.Open);
 
-        if (!isTeamLead && ticket.AssigneeId != agentId)
-            throw new UnauthorizedTicketActionException(ticket.Id);
+        EnsureOwnerOrTeamLead(ticket, agentId, isTeamLead);
 
         var previousStatus = ticket.Status;
         ticket.Status = TicketStatus.Open;
@@ -93,8 +95,7 @@ public class TicketService : ITicketService
         if (!TicketTransitions.IsLegal(ticket.Status, TicketStatus.Blocked))
             throw new InvalidTicketTransitionException(ticket.Status, TicketStatus.Blocked);
 
-        if (!isTeamLead && ticket.AssigneeId != agentId)
-            throw new UnauthorizedTicketActionException(ticket.Id);
+        EnsureOwnerOrTeamLead(ticket, agentId, isTeamLead);
 
         var previousStatus = ticket.Status;
         ticket.Status = TicketStatus.Blocked;
@@ -129,6 +130,12 @@ public class TicketService : ITicketService
             .OrderByDescending(t => t.Priority)
             .ThenBy(t => t.CreatedAt)
             .ToListAsync();
+    }
+
+    private static void EnsureOwnerOrTeamLead(Ticket ticket, string agentId, bool isTeamLead)
+    {
+        if (!isTeamLead && ticket.AssigneeId != agentId)
+            throw new UnauthorizedTicketActionException(ticket.Id);
     }
 
     private void AddEvent(Guid ticketId, string? actorId, TicketEventType eventType, string? reason, DateTime occurredAt,
