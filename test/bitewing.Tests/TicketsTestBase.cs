@@ -30,7 +30,7 @@ public abstract class TicketsTestBase : IClassFixture<TicketsApiFactory>
             "Our front desk cannot see the calendar since this morning.");
 
         var response = await Client.PostAsJsonAsync("/api/tickets", request);
-        var body = await response.Content.ReadFromJsonAsync<TicketResponse>();
+        var body = await response.Content.ReadFromJsonAsync<TicketResponse>(TestJson.Options);
 
         return body!.Id;
     }

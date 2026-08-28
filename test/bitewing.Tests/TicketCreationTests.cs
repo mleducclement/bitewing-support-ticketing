@@ -31,7 +31,7 @@ public class TicketCreationTests : TicketsTestBase
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
-        var body = await response.Content.ReadFromJsonAsync<TicketResponse>();
+        var body = await response.Content.ReadFromJsonAsync<TicketResponse>(TestJson.Options);
         _testOutputHelper.WriteLine(body!.ToString());
         Assert.NotNull(body);
         Assert.Equal(TicketStatus.Open, body!.Status);
@@ -62,10 +62,10 @@ public class TicketCreationTests : TicketsTestBase
             "Our front desk cannot see the calendar since this morning.");
 
         var firstResponse = await Client.PostAsJsonAsync("/api/tickets", request);
-        var first = await firstResponse.Content.ReadFromJsonAsync<TicketResponse>();
+        var first = await firstResponse.Content.ReadFromJsonAsync<TicketResponse>(TestJson.Options);
 
         var secondResponse = await Client.PostAsJsonAsync("/api/tickets", request);
-        var second = await secondResponse.Content.ReadFromJsonAsync<TicketResponse>();
+        var second = await secondResponse.Content.ReadFromJsonAsync<TicketResponse>(TestJson.Options);
 
         using var scope = Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

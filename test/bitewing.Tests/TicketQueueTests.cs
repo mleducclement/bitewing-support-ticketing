@@ -33,7 +33,7 @@ public class TicketQueueTests : TicketsTestBase
         var response = await Client.GetAsync("/api/tickets");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var tickets = await response.Content.ReadFromJsonAsync<List<TicketResponse>>();
+        var tickets = await response.Content.ReadFromJsonAsync<List<TicketResponse>>(TestJson.Options);
         var ids = tickets!.Select(t => t.Id).ToList();
 
         Assert.True(ids.IndexOf(firstUrgentId) < ids.IndexOf(secondUrgentId));
@@ -48,11 +48,11 @@ public class TicketQueueTests : TicketsTestBase
         await Client.PostAsync($"/api/tickets/{ticketId}/claim", null);
 
         var response = await Client.GetAsync("/api/tickets?status=InProgress");
-        var tickets = await response.Content.ReadFromJsonAsync<List<TicketResponse>>();
+        var tickets = await response.Content.ReadFromJsonAsync<List<TicketResponse>>(TestJson.Options);
         Assert.Contains(tickets!, t => t.Id == ticketId);
 
         var cancelledResponse = await Client.GetAsync("/api/tickets?status=Cancelled");
-        var cancelledTickets = await cancelledResponse.Content.ReadFromJsonAsync<List<TicketResponse>>();
+        var cancelledTickets = await cancelledResponse.Content.ReadFromJsonAsync<List<TicketResponse>>(TestJson.Options);
         Assert.DoesNotContain(cancelledTickets!, t => t.Id == ticketId);
     }
 
@@ -71,11 +71,11 @@ public class TicketQueueTests : TicketsTestBase
         await LoginAsSeededAgentAsync();
 
         var response = await Client.GetAsync("/api/tickets?priority=Urgent");
-        var tickets = await response.Content.ReadFromJsonAsync<List<TicketResponse>>();
+        var tickets = await response.Content.ReadFromJsonAsync<List<TicketResponse>>(TestJson.Options);
         Assert.Contains(tickets!, t => t.Id == ticketId);
 
         var lowResponse = await Client.GetAsync("/api/tickets?priority=Low");
-        var lowTickets = await lowResponse.Content.ReadFromJsonAsync<List<TicketResponse>>();
+        var lowTickets = await lowResponse.Content.ReadFromJsonAsync<List<TicketResponse>>(TestJson.Options);
         Assert.DoesNotContain(lowTickets!, t => t.Id == ticketId);
     }
 
@@ -91,7 +91,7 @@ public class TicketQueueTests : TicketsTestBase
         var agent = await userManager.FindByEmailAsync(SeededAgentEmail);
 
         var response = await Client.GetAsync($"/api/tickets?assigneeId={agent!.Id}");
-        var tickets = await response.Content.ReadFromJsonAsync<List<TicketResponse>>();
+        var tickets = await response.Content.ReadFromJsonAsync<List<TicketResponse>>(TestJson.Options);
 
         var ticket = Assert.Single(tickets!, t => t.Id == ticketId);
         Assert.Equal("Sarah Kerrigan", ticket.AssigneeName);
@@ -112,11 +112,11 @@ public class TicketQueueTests : TicketsTestBase
         await LoginAsSeededAgentAsync();
 
         var response = await Client.GetAsync("/api/tickets?handoffFlag=true");
-        var tickets = await response.Content.ReadFromJsonAsync<List<TicketResponse>>();
+        var tickets = await response.Content.ReadFromJsonAsync<List<TicketResponse>>(TestJson.Options);
         Assert.Contains(tickets!, t => t.Id == ticketId);
 
         var notHandedOffResponse = await Client.GetAsync("/api/tickets?handoffFlag=false");
-        var notHandedOffTickets = await notHandedOffResponse.Content.ReadFromJsonAsync<List<TicketResponse>>();
+        var notHandedOffTickets = await notHandedOffResponse.Content.ReadFromJsonAsync<List<TicketResponse>>(TestJson.Options);
         Assert.DoesNotContain(notHandedOffTickets!, t => t.Id == ticketId);
     }
 

@@ -39,7 +39,7 @@ public class TicketUnblockTests : TicketsTestBase
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var body = await response.Content.ReadFromJsonAsync<TicketResponse>();
+        var body = await response.Content.ReadFromJsonAsync<TicketResponse>(TestJson.Options);
         Assert.NotNull(body);
         Assert.Equal(TicketStatus.InProgress, body!.Status);
         Assert.Null(body.BlockedSince);

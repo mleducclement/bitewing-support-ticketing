@@ -32,7 +32,7 @@ public class TicketBlockTests : TicketsTestBase
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var body = await response.Content.ReadFromJsonAsync<TicketResponse>();
+        var body = await response.Content.ReadFromJsonAsync<TicketResponse>(TestJson.Options);
         Assert.NotNull(body);
         Assert.Equal(TicketStatus.Blocked, body!.Status);
         Assert.NotNull(body.BlockedSince);
