@@ -20,6 +20,7 @@ public static class SeedDataExtensions
         await SeedRolesAsync(roleManager);
         await SeedUsersAsync(userManager, configuration, logger);
         await SeedSettingsAsync(db);
+        await db.SeedTicketsAsync(userManager, logger);
     }
 
     private static async Task SeedSettingsAsync(AppDbContext db)

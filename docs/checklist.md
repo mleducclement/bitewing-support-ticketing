@@ -7,6 +7,8 @@ Derived from `docs/spec.md` §3–§8 and `docs/decision-log.md`. Update as work
 - [x] Entities: Ticket, Classification, Note, TicketEvent, SpotCheck, Settings, ApplicationUser
 - [x] Migrations applied locally and on Render
 - [x] Identity: cookie auth, AgentAccess/TeamLeadOnly policies, config-driven seeding
+- [x] Demo ticket seeding: ~12 tickets across every status/priority, guarded by an empty-table check, fixed GUIDs, integration-tested for idempotency
+- [x] API responses serialize enums as names via `JsonStringEnumConverter`
 - [x] Ticket creation endpoint (`POST /api/tickets`) — validated, integration-tested against real Postgres
 - [x] CI running tests on push (GitHub Actions)
 - [x] CD deploying on push (Render)
@@ -49,7 +51,14 @@ Transition logic lives in `TicketService`. Most transitions are validated via `T
 
 ## Frontend
 
-- [ ] Everything — no React work started yet. Login/logout, queue view, ticket detail, intake form, trend dashboard.
+React + Vite + Tailwind v4 + shadcn/ui. Feature-folder layout under `src/web/src/features`.
+
+- [x] App shell, Tailwind/shadcn toolchain
+- [x] Login / logout: session check on load (`GET /api/auth/me`), login form, sign-out in the header
+- [~] Queue view: live `GET /api/tickets`, colored status badges, priority, age, handoff marker, client-side status/priority/assignee filters. Server-side filtering and a card layout option are still open.
+- [ ] Ticket detail
+- [ ] Public intake form
+- [ ] Trend dashboard
 
 ## Infrastructure follow-ups
 
