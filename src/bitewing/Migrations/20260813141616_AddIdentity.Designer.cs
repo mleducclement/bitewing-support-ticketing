@@ -13,7 +13,7 @@ namespace bitewing.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20260813141616_add identity")]
-    partial class addidentity
+    partial class AddIdentity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
