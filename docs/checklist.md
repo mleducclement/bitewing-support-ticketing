@@ -10,8 +10,8 @@ Derived from `docs/spec.md` §3–§8 and `docs/decision-log.md`. Update as work
 - [x] Demo ticket seeding: ~12 tickets across every status/priority, guarded by an empty-table check, fixed GUIDs, integration-tested for idempotency
 - [x] API responses serialize enums as names via `JsonStringEnumConverter`
 - [x] Ticket creation endpoint (`POST /api/tickets`) — validated, integration-tested against real Postgres
-- [x] CI running tests on push (GitHub Actions)
-- [x] CD deploying on push (Render)
+- [x] CI running on push (GitHub Actions): `dotnet` test job plus a `web` job (npm lint + Vite build)
+- [x] CD deploying on push (Render), gated on CI: Render's "wait for CI to pass" setting holds the deploy until the commit's checks are green
 
 ## Ticket lifecycle (spec §3)
 
@@ -63,7 +63,7 @@ React + Vite + Tailwind v4 + shadcn/ui. Feature-folder layout under `src/web/src
 
 ## Infrastructure follow-ups
 
-- [ ] CI/CD gating — tests currently run but don't block Render deploy; wire via Render deploy hook
+- [x] CI/CD gating — Render's "wait for CI to pass" setting blocks the deploy unless the commit's GitHub checks (`test` + `web`) are green
 - [ ] Decision log: concurrency risk on Claim accepted for v1 — not yet written up
 - [ ] Decision log: AuthController vs MapIdentityApi — still outstanding from last week
 
