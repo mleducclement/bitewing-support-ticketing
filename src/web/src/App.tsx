@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Route, Routes } from 'react-router-dom'
 
 import { AppHeader } from '@/components/AppHeader'
 import { Button } from '@/components/ui/button'
@@ -6,6 +7,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { useAuth } from '@/features/auth/useAuth'
 import { QueuePage } from '@/features/queue/QueuePage'
+import { TicketDetailPage } from '@/features/ticket-detail/TicketDetailPage'
 
 function App() {
   const { status, user, signIn, signOut, retry } = useAuth()
@@ -38,7 +40,10 @@ function App() {
     screen = (
       <div className="flex min-h-screen flex-col bg-background text-foreground">
         <AppHeader user={user} onSignOut={signOut} />
-        <QueuePage />
+        <Routes>
+          <Route path="/" element={<QueuePage />} />
+          <Route path="/tickets/:id" element={<TicketDetailPage />} />
+        </Routes>
       </div>
     )
   }

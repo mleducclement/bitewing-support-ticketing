@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 import { Button } from '@/components/ui/button'
 import type { CurrentUser } from '@/types/auth'
 
@@ -13,7 +15,9 @@ export function AppHeader({ user, onSignOut }: AppHeaderProps) {
         <div className="flex items-center gap-6">
           <span className="text-sm font-semibold tracking-tight">Bitewing</span>
           <nav className="flex items-center gap-4 text-sm">
-            <span className="font-medium text-foreground">Queue</span>
+            <Link to="/" className="font-medium text-foreground hover:text-foreground/80">
+              Queue
+            </Link>
           </nav>
         </div>
         <div className="flex items-center gap-3 text-sm">

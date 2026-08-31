@@ -14,4 +14,5 @@ public interface ITicketService
     Task<Ticket?> CancelAsync(Guid ticketId, string agentId, bool isTeamLead, CancellationReason reason);
     Task<int> AutoCancelExpiredTicketsAsync();
     Task<List<Ticket>> GetQueueAsync(TicketQueueRequest filter);
+    Task<Ticket?> GetByIdAsync(Guid ticketId);
 }

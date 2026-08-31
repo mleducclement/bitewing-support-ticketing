@@ -1,6 +1,8 @@
-import { ArrowLeftRight } from 'lucide-react'
+import { ArrowLeftRight, ChevronRight } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -24,6 +26,8 @@ interface TicketQueueTableProps {
 }
 
 export function TicketQueueTable({ tickets, emptyMessage }: TicketQueueTableProps) {
+  const navigate = useNavigate()
+
   return (
     <div className="overflow-hidden rounded-lg border">
       <Table>
@@ -36,13 +40,14 @@ export function TicketQueueTable({ tickets, emptyMessage }: TicketQueueTableProp
             <TableHead>Priority</TableHead>
             <TableHead>Assignee</TableHead>
             <TableHead className="text-right">Age</TableHead>
+            <TableHead className="w-0" />
           </TableRow>
         </TableHeader>
         <TableBody>
           {tickets.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={7}
+                colSpan={8}
                 className="h-24 text-center text-muted-foreground"
               >
                 {emptyMessage}
@@ -50,7 +55,11 @@ export function TicketQueueTable({ tickets, emptyMessage }: TicketQueueTableProp
             </TableRow>
           ) : (
             tickets.map((ticket) => (
-              <TableRow key={ticket.id}>
+              <TableRow
+                key={ticket.id}
+                onClick={() => navigate(`/tickets/${ticket.id}`)}
+                className="cursor-pointer hover:bg-muted/50"
+              >
                 <TableCell className="font-medium">
                   <span className="inline-flex items-center gap-1.5">
                     {ticket.displayId}
@@ -92,6 +101,19 @@ export function TicketQueueTable({ tickets, emptyMessage }: TicketQueueTableProp
                 </TableCell>
                 <TableCell className="text-right tabular-nums text-muted-foreground">
                   {formatAge(ticket.createdAt)}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Link to={`/tickets/${ticket.id}`}>
+                      View
+                      <ChevronRight className="size-4" />
+                    </Link>
+                  </Button>
                 </TableCell>
               </TableRow>
             ))

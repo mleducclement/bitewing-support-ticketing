@@ -192,6 +192,17 @@ public class TicketsController : ControllerBase
         return Ok(tickets.Select(ToResponse));
     }
 
+    [Authorize(Policy = "AgentAccess")]
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var ticket = await _ticketService.GetByIdAsync(id);
+
+        if (ticket is null) return NotFound();
+
+        return Ok(ToResponse(ticket));
+    }
+
     private static TicketResponse ToResponse(Ticket ticket) => new(
         ticket.Id,
         ticket.DisplayId,

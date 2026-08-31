@@ -230,6 +230,13 @@ public class TicketService : ITicketService
             .ToListAsync();
     }
 
+    public async Task<Ticket?> GetByIdAsync(Guid ticketId)
+    {
+        return await _db.Tickets
+            .Include(t => t.Assignee)
+            .FirstOrDefaultAsync(t => t.Id == ticketId);
+    }
+
     private static void EnsureOwnerOrTeamLead(Ticket ticket, string agentId, bool isTeamLead)
     {
         if (!isTeamLead && ticket.AssigneeId != agentId)
