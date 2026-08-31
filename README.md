@@ -9,7 +9,7 @@ The client AND data are fictional. The requirements are not invented in one sitt
 - **Backend:** ASP.NET Core
 - **Frontend:** React, Shadcn/ui
 - **Database:** Postgres
-- **Hosting:** Render, deployed continuously from `main`
+- **Hosting:** Render, deployed from `main` after CI (tests + frontend build) passes
 - **LLM**: Claude (Anthropic API)
 
 ## Links

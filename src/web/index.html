@@ -5,9 +5,70 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bitewing</title>
+    <style>
+      /* Pre-React boot state. Inline and self-contained so it renders even if
+         the JS bundle or the stylesheet never loads. React replaces #root on a
+         successful mount, which removes all of this. */
+      #boot-fallback {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font: 14px system-ui, sans-serif;
+        color: #555;
+      }
+      #boot-error {
+        max-width: 20rem;
+        text-align: center;
+      }
+      #boot-error button {
+        margin-top: 0.75rem;
+        padding: 0.375rem 0.75rem;
+        font: inherit;
+        border: 1px solid #ccc;
+        border-radius: 0.5rem;
+        background: #fff;
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="boot-fallback">
+        <div id="boot-loading">Loading Bitewing…</div>
+        <div id="boot-error" hidden>
+          <p>Bitewing failed to load.</p>
+          <button type="button" onclick="location.reload()">Reload</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      // If the app never mounts (bundle fails to load/parse, an uncaught error
+      // before React commits, a rejected dynamic import), swap the loading text
+      // for a recovery prompt. Once React has mounted it owns #root, so
+      // #boot-error is detached and these handlers become no-ops.
+      (function () {
+        function showBootError() {
+          var err = document.getElementById('boot-error')
+          if (!err || !err.isConnected) return
+          var loading = document.getElementById('boot-loading')
+          if (loading) loading.hidden = true
+          err.hidden = false
+        }
+        window.addEventListener(
+          'error',
+          function (e) {
+            var t = e.target
+            if (!t || t === window || t.tagName === 'SCRIPT' || t.tagName === 'LINK') {
+              showBootError()
+            }
+          },
+          true,
+        )
+        window.addEventListener('unhandledrejection', showBootError)
+      })()
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
