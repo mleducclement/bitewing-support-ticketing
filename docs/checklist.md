@@ -54,6 +54,7 @@ Transition logic lives in `TicketService`. Most transitions are validated via `T
 React + Vite + Tailwind v4 + shadcn/ui. Feature-folder layout under `src/web/src/features`.
 
 - [x] App shell, Tailwind/shadcn toolchain
+- [x] API failure handling: `apiFetch` normalizes network errors and 4xx/5xx bodies, times out stalled requests (15s), auto-toasts every failure except 401 (sonner), full-screen "can't reach Bitewing" state when the session check can't reach the server, root error boundary
 - [x] Login / logout: session check on load (`GET /api/auth/me`), login form, sign-out in the header
 - [~] Queue view: live `GET /api/tickets`, colored status badges, priority, age, handoff marker, client-side status/priority/assignee filters. Server-side filtering and a card layout option are still open.
 - [ ] Ticket detail

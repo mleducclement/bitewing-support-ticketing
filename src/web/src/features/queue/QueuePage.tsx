@@ -73,7 +73,7 @@ export function QueuePage() {
 
       {error ? (
         <div className="rounded-lg border p-8 text-center text-sm text-muted-foreground">
-          <p>Could not load tickets.</p>
+          <p>Could not load the queue.</p>
           <Button variant="outline" size="sm" className="mt-3" onClick={refetch}>
             Retry
           </Button>

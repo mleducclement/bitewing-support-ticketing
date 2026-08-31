@@ -2,10 +2,17 @@ import { useState, type FormEvent } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ApiError } from '@/lib/api'
+import { ApiError, isServerError } from '@/lib/api'
 
 interface LoginPageProps {
   onSignIn: (email: string, password: string) => Promise<void>
+}
+
+function messageFor(err: unknown): string {
+  if (isServerError(err)) return "Bitewing isn't responding. Try again in a moment."
+  if (err instanceof ApiError && err.status === 401) return 'Incorrect email or password.'
+  if (err instanceof ApiError) return err.message
+  return 'Could not sign in. Try again.'
 }
 
 export function LoginPage({ onSignIn }: LoginPageProps) {
@@ -21,11 +28,7 @@ export function LoginPage({ onSignIn }: LoginPageProps) {
     try {
       await onSignIn(email, password)
     } catch (err) {
-      setError(
-        err instanceof ApiError && err.status === 401
-          ? 'Incorrect email or password.'
-          : 'Could not sign in. Try again.',
-      )
+      setError(messageFor(err))
       setPending(false)
     }
   }
