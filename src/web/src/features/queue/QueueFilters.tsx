@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import type { TicketPriority, TicketStatus } from '@/types/ticket'
-import { PRIORITY_LABELS, STATUS_LABELS } from './ticketFormat'
+import { PRIORITY_LABELS, STATUS_LABELS } from '../../lib/ticketFormat.ts'
 import {
   EMPTY_FILTERS,
   UNASSIGNED,

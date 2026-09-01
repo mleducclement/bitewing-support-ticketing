@@ -29,7 +29,7 @@ Transition logic lives in `TicketService`. Most transitions are validated via `T
 ## Ticket operations (spec §5)
 
 - [x] Queue endpoint (`GET /api/tickets`) — filterable by status/priority/assignee/handoff_flag, sorted priority-then-age; area filter deferred until classification worker exists
-- [~] Ticket detail endpoint (`GET /api/tickets/{id}`) — returns the flat `TicketResponse` (same shape as a queue row); notes, event history and classification still to be added as later slices
+- [~] Ticket detail endpoint (`GET /api/tickets/{id}`) — returns the flat `TicketResponse`, now including `updatedAt`; notes, event history and classification still to be added as later slices
 - [ ] Priority change endpoint — any agent, any ticket including unowned; downgrade requires a reason; writes event
 - [ ] Bulk unassign endpoint — TeamLead only, returns tickets to Open with `handoff_flag` set, priority untouched
 - [ ] Add note endpoint
@@ -56,11 +56,12 @@ React + Vite + Tailwind v4 + shadcn/ui. Feature-folder layout under `src/web/src
 - [x] App shell, Tailwind/shadcn toolchain
 - [x] API failure handling: `apiFetch` normalizes network errors and 4xx/5xx bodies, times out stalled requests (15s), auto-toasts every failure except 401 (sonner), full-screen "can't reach Bitewing" state when the session check can't reach the server, root error boundary
 - [x] Login / logout: session check on load (`GET /api/auth/me`), login form, sign-out in the header
-- [x] Client-side routing (`react-router-dom`): `/` queue, `/tickets/:id` detail; queue rows are clickable and carry a "View" link
+- [x] Client-side routing (`react-router-dom`): `/` queue, `/tickets/CS-{n}` detail (friendly reference, not the GUID; backend `GET /api/tickets/CS-{number}` alias); queue rows are clickable and carry a "View" link
 - [~] Queue view: live `GET /api/tickets`, colored status badges, priority, age, handoff marker, client-side status/priority/assignee filters. Server-side filtering and a card layout option are still open.
-- [~] Ticket detail: slice 1 done — route, page, and `useTicket` hook render the subject only. Full text, status controls, priority, notes, event history, classification are later slices.
+- [~] Ticket detail: read-only view done — sectioned into Status / Customer / Activity / Message cards; full body, assignee, created/updated with relative age, amber "waiting on customer" line when blocked, cancellation reason, handoff badge. Status controls, priority, notes, event history, classification are later slices.
 - [ ] Public intake form
 - [ ] Trend dashboard
+- [ ] Frontend visual pass — type scale, spacing, and card treatment applied consistently across queue + detail + intake form + dashboard (detail page had a light readability pass; the rest is deferred so it's done coherently)
 
 ## Infrastructure follow-ups
 

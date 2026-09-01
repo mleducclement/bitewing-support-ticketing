@@ -18,7 +18,7 @@ import {
   formatAge,
   priorityBadgeVariant,
   statusBadgeClass,
-} from './ticketFormat'
+} from '../../lib/ticketFormat.ts'
 
 interface TicketQueueTableProps {
   tickets: Ticket[]
@@ -57,7 +57,7 @@ export function TicketQueueTable({ tickets, emptyMessage }: TicketQueueTableProp
             tickets.map((ticket) => (
               <TableRow
                 key={ticket.id}
-                onClick={() => navigate(`/tickets/${ticket.id}`)}
+                onClick={() => navigate(`/tickets/${ticket.displayId}`)}
                 className="cursor-pointer hover:bg-muted/50"
               >
                 <TableCell className="font-medium">
@@ -109,7 +109,7 @@ export function TicketQueueTable({ tickets, emptyMessage }: TicketQueueTableProp
                     size="sm"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Link to={`/tickets/${ticket.id}`}>
+                    <Link to={`/tickets/${ticket.displayId}`}>
                       View
                       <ChevronRight className="size-4" />
                     </Link>

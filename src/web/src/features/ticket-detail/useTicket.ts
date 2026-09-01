@@ -9,9 +9,11 @@ export interface TicketResult {
   error: boolean
 }
 
-// Callers should mount this under a `key={id}` so a route change to another
-// ticket gets fresh state rather than briefly showing the previous one.
-export function useTicket(id: string): TicketResult {
+// `reference` is the CS-{n} display id (or a raw GUID); it goes straight into the
+// request path. Callers should mount this under a `key={reference}` so a route
+// change to another ticket gets fresh state rather than briefly showing the
+// previous one.
+export function useTicket(reference: string): TicketResult {
   const [ticket, setTicket] = useState<Ticket | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -19,7 +21,7 @@ export function useTicket(id: string): TicketResult {
   useEffect(() => {
     let cancelled = false
 
-    apiFetch<Ticket>(`/api/tickets/${id}`)
+    apiFetch<Ticket>(`/api/tickets/${reference}`)
       .then((data) => {
         if (cancelled) return
         setTicket(data)
@@ -34,7 +36,7 @@ export function useTicket(id: string): TicketResult {
     return () => {
       cancelled = true
     }
-  }, [id])
+  }, [reference])
 
   return { ticket, loading, error }
 }

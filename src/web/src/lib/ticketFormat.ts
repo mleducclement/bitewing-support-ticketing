@@ -1,7 +1,7 @@
 import type { VariantProps } from 'class-variance-authority'
 
-import type { badgeVariants } from '@/components/ui/badge'
-import type { TicketPriority, TicketStatus } from '@/types/ticket'
+import type { badgeVariants } from '@/components/ui/badge.tsx'
+import type { TicketPriority, TicketStatus } from '@/types/ticket.ts'
 
 type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>
 
@@ -45,6 +45,11 @@ export function statusBadgeClass(status: TicketStatus): string {
   return STATUS_BADGE_CLASSES[status]
 }
 
+// The handoff marker shares the queue's amber language (the ArrowLeftRight icon
+// in TicketQueueTable), rendered on the detail page as a full badge.
+export const HANDOFF_BADGE_CLASS =
+  'gap-1 border-transparent bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+
 export function priorityBadgeVariant(priority: TicketPriority): BadgeVariant {
   switch (priority) {
     case 'Urgent':
@@ -73,4 +78,22 @@ export function formatAge(createdAt: string, now: number = Date.now()): string {
   if (hours < 24) return `${hours}h`
   const days = Math.floor(hours / 24)
   return `${days}d`
+}
+
+export function formatDateTime(iso: string): string {
+  return new Date(iso).toLocaleString(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  })
+}
+
+// Spelled-out elapsed time ("3 days", "an hour") for prose, e.g. the blocked
+// callout. formatAge stays the terse "3d" form used in the queue table.
+export function formatDuration(fromIso: string, now: number = Date.now()): string {
+  const minutes = Math.max(0, Math.floor((now - Date.parse(fromIso)) / 60_000))
+  if (minutes < 60) return minutes <= 1 ? 'a minute' : `${minutes} minutes`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return hours === 1 ? 'an hour' : `${hours} hours`
+  const days = Math.floor(hours / 24)
+  return days === 1 ? 'a day' : `${days} days`
 }

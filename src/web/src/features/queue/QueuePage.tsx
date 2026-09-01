@@ -8,7 +8,7 @@ import {
   type QueueFilterState,
 } from './queueFilterState'
 import { TicketQueueTable } from './TicketQueueTable'
-import { comparePriorityThenAge } from './ticketFormat'
+import { comparePriorityThenAge } from '../../lib/ticketFormat.ts'
 import { useTickets } from './useTickets'
 
 export function QueuePage() {

@@ -42,7 +42,7 @@ function App() {
         <AppHeader user={user} onSignOut={signOut} />
         <Routes>
           <Route path="/" element={<QueuePage />} />
-          <Route path="/tickets/:id" element={<TicketDetailPage />} />
+          <Route path="/tickets/:reference" element={<TicketDetailPage />} />
         </Routes>
       </div>
     )

@@ -27,6 +27,7 @@ export interface Ticket {
   status: TicketStatus
   priority: TicketPriority
   createdAt: string
+  updatedAt: string
   assigneeName: string | null
   handoffFlag: boolean
   blockedSince: string | null
