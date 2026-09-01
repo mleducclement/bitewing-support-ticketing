@@ -13,6 +13,7 @@ public record TicketResponse(
     TicketStatus Status,
     TicketPriority Priority,
     DateTime CreatedAt,
+    DateTime UpdatedAt,
     string? AssigneeName,
     bool HandoffFlag,
     DateTime? BlockedSince,

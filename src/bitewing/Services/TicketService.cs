@@ -237,6 +237,13 @@ public class TicketService : ITicketService
             .FirstOrDefaultAsync(t => t.Id == ticketId);
     }
 
+    public async Task<Ticket?> GetByNumberAsync(int ticketNumber)
+    {
+        return await _db.Tickets
+            .Include(t => t.Assignee)
+            .FirstOrDefaultAsync(t => t.TicketNumber == ticketNumber);
+    }
+
     private static void EnsureOwnerOrTeamLead(Ticket ticket, string agentId, bool isTeamLead)
     {
         if (!isTeamLead && ticket.AssigneeId != agentId)

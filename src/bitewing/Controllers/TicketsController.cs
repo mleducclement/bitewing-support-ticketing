@@ -203,6 +203,20 @@ public class TicketsController : ControllerBase
         return Ok(ToResponse(ticket));
     }
 
+    // Friendly alias so the UI can use the CS-{n} reference agents actually cite
+    // (spec §4) in URLs instead of the GUID. The literal is matched
+    // case-insensitively, so /api/tickets/cs-3 works too.
+    [Authorize(Policy = "AgentAccess")]
+    [HttpGet("CS-{number:int}")]
+    public async Task<IActionResult> GetByNumber(int number)
+    {
+        var ticket = await _ticketService.GetByNumberAsync(number);
+
+        if (ticket is null) return NotFound();
+
+        return Ok(ToResponse(ticket));
+    }
+
     private static TicketResponse ToResponse(Ticket ticket) => new(
         ticket.Id,
         ticket.DisplayId,
@@ -214,6 +228,7 @@ public class TicketsController : ControllerBase
         ticket.Status,
         ticket.Priority,
         ticket.CreatedAt,
+        ticket.UpdatedAt,
         ticket.Assignee is null ? null : $"{ticket.Assignee.FirstName} {ticket.Assignee.LastName}",
         ticket.HandoffFlag,
         ticket.BlockedSince,

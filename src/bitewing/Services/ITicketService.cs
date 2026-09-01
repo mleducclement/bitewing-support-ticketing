@@ -15,4 +15,5 @@ public interface ITicketService
     Task<int> AutoCancelExpiredTicketsAsync();
     Task<List<Ticket>> GetQueueAsync(TicketQueueRequest filter);
     Task<Ticket?> GetByIdAsync(Guid ticketId);
+    Task<Ticket?> GetByNumberAsync(int ticketNumber);
 }
