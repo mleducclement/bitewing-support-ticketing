@@ -14,6 +14,7 @@ public record TicketResponse(
     TicketPriority Priority,
     DateTime CreatedAt,
     DateTime UpdatedAt,
+    string? AssigneeId,
     string? AssigneeName,
     bool HandoffFlag,
     DateTime? BlockedSince,

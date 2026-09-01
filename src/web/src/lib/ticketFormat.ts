@@ -61,6 +61,12 @@ export function priorityBadgeVariant(priority: TicketPriority): BadgeVariant {
   }
 }
 
+// True when `to` is a lower priority than `from` (spec §5: "Downgrades require
+// a reason").
+export function isPriorityDowngrade(from: TicketPriority, to: TicketPriority): boolean {
+  return PRIORITY_RANK[to] < PRIORITY_RANK[from]
+}
+
 export function comparePriorityThenAge(
   a: { priority: TicketPriority; createdAt: string },
   b: { priority: TicketPriority; createdAt: string },

@@ -183,6 +183,32 @@ public class TicketsController : ControllerBase
         return Ok(ToResponse(ticket));
     }
 
+
+    [Authorize(Policy = "AgentAccess")]
+    [HttpPost("{id:guid}/priority")]
+    public async Task<IActionResult> Priority(Guid id, PriorityChangeRequest request)
+    {
+        var agentId = _userManager.GetUserId(User);
+        
+        Ticket? ticket;
+        try
+        {
+            ticket = await _ticketService.ChangePriorityAsync(id, agentId!, request.NewPriority!.Value, request.Reason);
+        }
+        catch (PriorityDowngradeReasonRequiredException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+        catch (TicketClosedException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+        
+        if (ticket is null) return NotFound();
+
+        return Ok(ToResponse(ticket));
+    }
+
     [Authorize(Policy = "AgentAccess")]
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] TicketQueueRequest filter)
@@ -229,6 +255,7 @@ public class TicketsController : ControllerBase
         ticket.Priority,
         ticket.CreatedAt,
         ticket.UpdatedAt,
+        ticket.AssigneeId,
         ticket.Assignee is null ? null : $"{ticket.Assignee.FirstName} {ticket.Assignee.LastName}",
         ticket.HandoffFlag,
         ticket.BlockedSince,

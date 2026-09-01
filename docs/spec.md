@@ -143,6 +143,8 @@ Append-only history: status changes, assignment changes, priority changes, class
 | `event_type`  | `StatusChanged` / `AssignmentChanged` / `PriorityChanged` / `ClassificationCorrected`                                                                                     |
 | `from_status` | Nullable. Populated only when `event_type` is `StatusChanged`                                                                                                             |
 | `to_status`   | Nullable. Populated only when `event_type` is `StatusChanged`                                                                                                             |
+| `from_priority` | Nullable. Populated only when `event_type` is `PriorityChanged`                                                                                                         |
+| `to_priority`   | Nullable. Populated only when `event_type` is `PriorityChanged`                                                                                                         |
 | `reason`      | Nullable free text. Required when `event_type` is `PriorityChanged` and the change is a downgrade (§5, "Downgrades require a reason"); optional on every other event type |
 | `occurred_at` |                                                                                                                                                                           |
 

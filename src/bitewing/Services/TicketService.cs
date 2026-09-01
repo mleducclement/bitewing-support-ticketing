@@ -181,6 +181,31 @@ public class TicketService : ITicketService
         return ticket;
     }
 
+    public async Task<Ticket?> ChangePriorityAsync(Guid ticketId, string agentId, TicketPriority newPriority, string? reason)
+    {
+        var ticket = await _db.Tickets.FindAsync(ticketId);
+        if (ticket is null) return null;
+
+        if (ticket.Status is TicketStatus.Resolved or TicketStatus.Cancelled)
+            throw new TicketClosedException(ticket.Status);
+        
+        if (ticket.Priority == newPriority) return ticket;
+        
+        if (newPriority < ticket.Priority && reason is null)
+            throw new PriorityDowngradeReasonRequiredException(ticket.Priority, newPriority);
+            
+        var previousPriority = ticket.Priority;
+        ticket.Priority = newPriority;
+        ticket.UpdatedAt = DateTime.UtcNow;
+        
+        AddEvent(ticket.Id, agentId, TicketEventType.PriorityChanged, reason, ticket.UpdatedAt, null, null, previousPriority, newPriority);
+
+        await _db.SaveChangesAsync();
+        await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
+        
+        return ticket;
+    }
+
     public async Task<int> AutoCancelExpiredTicketsAsync()
     {
         var settings = await _db.Settings.FirstAsync();
@@ -199,7 +224,7 @@ public class TicketService : ITicketService
             ticket.HandoffFlag = false;
             ticket.UpdatedAt = DateTime.UtcNow;
 
-            AddEvent(ticket.Id, null, TicketEventType.StatusChanged, CancellationReason.Expired.ToString(), ticket.UpdatedAt, previousStatus, ticket.Status);
+            AddEvent(ticket.Id, null, TicketEventType.StatusChanged, nameof(CancellationReason.Expired), ticket.UpdatedAt, previousStatus, ticket.Status);
         }
 
         if (expiredTickets.Count > 0)
@@ -251,7 +276,7 @@ public class TicketService : ITicketService
     }
 
     private void AddEvent(Guid ticketId, string? actorId, TicketEventType eventType, string? reason, DateTime occurredAt,
-        TicketStatus? fromStatus = null, TicketStatus? toStatus = null)
+        TicketStatus? fromStatus = null, TicketStatus? toStatus = null, TicketPriority? fromPriority = null, TicketPriority? toPriority = null)
     {
         _db.TicketEvents.Add(new TicketEvent
         {
@@ -261,6 +286,8 @@ public class TicketService : ITicketService
             EventType = eventType,
             FromStatus = fromStatus,
             ToStatus = toStatus,
+            FromPriority = fromPriority,
+            ToPriority = toPriority,
             Reason = reason,
             OccurredAt = occurredAt
         });

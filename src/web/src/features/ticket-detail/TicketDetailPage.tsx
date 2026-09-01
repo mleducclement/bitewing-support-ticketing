@@ -3,18 +3,19 @@ import {ArrowLeft, ArrowLeftRight, Clock} from 'lucide-react';
 import {Link, Navigate, useParams} from 'react-router-dom';
 
 import {Badge} from '@/components/ui/badge';
+import {Button} from '@/components/ui/button';
 import {
   formatAge,
   formatDateTime,
   formatDuration,
   HANDOFF_BADGE_CLASS,
-  PRIORITY_LABELS,
-  priorityBadgeVariant,
-  STATUS_LABELS,
-  statusBadgeClass,
 } from '@/lib/ticketFormat';
 
+import {PriorityControl} from './PriorityControl';
+import {StatusControl} from './StatusControl';
 import {useTicket} from './useTicket';
+import {useTicketAction} from './useTicketAction';
+import {useTicketDraft} from './useTicketDraft';
 
 // Shared small-caps treatment for section headings and <dl> labels.
 const LABEL_CLASS = 'text-sm font-bold uppercase tracking-wide';
@@ -64,7 +65,10 @@ export function TicketDetailPage() {
 }
 
 function TicketDetail({reference}: { reference: string }) {
-  const {ticket, loading, error} = useTicket(reference);
+  const {ticket, loading, error, refetch} = useTicket(reference);
+  const actions = useTicketAction(ticket?.id ?? '', refetch);
+  const draftState = useTicketDraft(ticket, actions);
+  const isSaving = actions.pending !== null;
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-8">
@@ -95,12 +99,18 @@ function TicketDetail({reference}: { reference: string }) {
 
           <Section title="Status">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className={statusBadgeClass(ticket!.status)}>
-                {STATUS_LABELS[ticket!.status]}
-              </Badge>
-              <Badge variant={priorityBadgeVariant(ticket!.priority)}>
-                {PRIORITY_LABELS[ticket!.priority]}
-              </Badge>
+              <StatusControl
+                ticket={ticket!}
+                draftStatus={draftState.draft.status}
+                onChange={draftState.setStatus}
+                disabled={isSaving}
+              />
+              <PriorityControl
+                ticket={ticket!}
+                draftPriority={draftState.draft.priority}
+                onChange={draftState.setPriority}
+                disabled={isSaving}
+              />
               {ticket!.handoffFlag && (
                 <Badge variant="outline" className={HANDOFF_BADGE_CLASS}>
                   <ArrowLeftRight className="size-3" aria-hidden/>
@@ -108,6 +118,17 @@ function TicketDetail({reference}: { reference: string }) {
                 </Badge>
               )}
             </div>
+
+            {draftState.hasChanges && (
+              <div className="mt-3 flex items-center gap-2">
+                <Button size="sm" disabled={isSaving} onClick={() => void draftState.save()}>
+                  {isSaving ? 'Saving…' : 'Save changes'}
+                </Button>
+                <Button size="sm" variant="ghost" disabled={isSaving} onClick={draftState.discard}>
+                  Discard changes
+                </Button>
+              </div>
+            )}
 
             {ticket!.status === 'Blocked' && ticket!.blockedSince && (
               <p className="mt-3 flex items-center gap-1.5 text-sm text-amber-700 dark:text-amber-500">

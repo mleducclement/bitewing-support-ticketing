@@ -55,6 +55,6 @@ public class AuthController :  ControllerBase
         
         var roles = await _userManager.GetRolesAsync(user);
 
-        return Ok(new MeResponse(user.Email!, user.FirstName, user.LastName, roles));
+        return Ok(new MeResponse(user.Email!, user.FirstName, user.LastName, roles, user.Id));
     }
 }

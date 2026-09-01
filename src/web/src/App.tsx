@@ -4,13 +4,15 @@ import { Route, Routes } from 'react-router-dom'
 import { AppHeader } from '@/components/AppHeader'
 import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
+import { AuthProvider } from '@/features/auth/AuthContext'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { useAuth } from '@/features/auth/useAuth'
 import { QueuePage } from '@/features/queue/QueuePage'
 import { TicketDetailPage } from '@/features/ticket-detail/TicketDetailPage'
 
 function App() {
-  const { status, user, signIn, signOut, retry } = useAuth()
+  const auth = useAuth()
+  const { status, user, signIn, signOut, retry } = auth
 
   let screen: ReactNode
 
@@ -38,13 +40,15 @@ function App() {
     screen = <LoginPage onSignIn={signIn} />
   } else {
     screen = (
-      <div className="flex min-h-screen flex-col bg-background text-foreground">
-        <AppHeader user={user} onSignOut={signOut} />
-        <Routes>
-          <Route path="/" element={<QueuePage />} />
-          <Route path="/tickets/:reference" element={<TicketDetailPage />} />
-        </Routes>
-      </div>
+      <AuthProvider value={auth}>
+        <div className="flex min-h-screen flex-col bg-background text-foreground">
+          <AppHeader user={user} onSignOut={signOut} />
+          <Routes>
+            <Route path="/" element={<QueuePage />} />
+            <Route path="/tickets/:reference" element={<TicketDetailPage />} />
+          </Routes>
+        </div>
+      </AuthProvider>
     )
   }
 

@@ -18,6 +18,10 @@ public class TicketEvent
     // Populated only when EventType is StatusChanged.
     public TicketStatus? FromStatus { get; set; }
     public TicketStatus? ToStatus { get; set; }
+    
+    // Populated only when EventType is PriorityChanged.
+    public TicketPriority? FromPriority { get; set; }
+    public TicketPriority? ToPriority { get; set; }
 
     // Required by the spec for priority downgrades; optional for other event types.
     public string? Reason { get; set; }
