@@ -90,14 +90,23 @@ try {
     }
 }
 finally {
+    # Restore the caller's directory first and unconditionally, before anything
+    # below that could throw (e.g. Kill() on an already-exited process) and
+    # abort the rest of this block.
+    Pop-Location
+    Set-Location $PSScriptRoot
+
     foreach ($p in $procs) {
         if ($p -and -not $p.HasExited) {
-            $p.Kill($true)  # $true: also kill the child process tree (dotnet / node)
+            try {
+                $p.Kill($true)  # $true: also kill the child process tree (dotnet / node)
+            } catch {
+                Write-Warning "Failed to stop process $($p.Id): $_"
+            }
         }
     }
     if ($StopDb) {
         Write-Host 'Stopping Postgres...' -ForegroundColor Cyan
         docker compose down
     }
-    Pop-Location
 }
