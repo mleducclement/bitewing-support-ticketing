@@ -25,7 +25,7 @@ public class TicketsController : ControllerBase
     {
         var ticket = await _ticketService.CreateAsync(request);
 
-        return Created($"/api/tickets/{ticket.Id}", ToResponse(ticket));
+        return Created($"/api/tickets/{ticket.Id}", ToTicketResponse(ticket));
     }
 
     [Authorize(Policy = "AgentAccess")]
@@ -50,7 +50,7 @@ public class TicketsController : ControllerBase
 
         if (ticket is null) return NotFound();
 
-        return Ok(ToResponse(ticket));
+        return Ok(ToTicketResponse(ticket));
     }
 
     [Authorize(Policy = "AgentAccess")]
@@ -76,7 +76,7 @@ public class TicketsController : ControllerBase
 
         if (ticket is null) return NotFound();
 
-        return Ok(ToResponse(ticket));
+        return Ok(ToTicketResponse(ticket));
     }
 
     [Authorize(Policy = "AgentAccess")]
@@ -102,7 +102,7 @@ public class TicketsController : ControllerBase
 
         if (ticket is null) return NotFound();
 
-        return Ok(ToResponse(ticket));
+        return Ok(ToTicketResponse(ticket));
     }
 
     [Authorize(Policy = "AgentAccess")]
@@ -128,7 +128,7 @@ public class TicketsController : ControllerBase
 
         if (ticket is null) return NotFound();
 
-        return Ok(ToResponse(ticket));
+        return Ok(ToTicketResponse(ticket));
     }
 
     [Authorize(Policy = "AgentAccess")]
@@ -154,7 +154,7 @@ public class TicketsController : ControllerBase
 
         if (ticket is null) return NotFound();
 
-        return Ok(ToResponse(ticket));
+        return Ok(ToTicketResponse(ticket));
     }
 
     [Authorize(Policy = "AgentAccess")]
@@ -180,7 +180,7 @@ public class TicketsController : ControllerBase
 
         if (ticket is null) return NotFound();
 
-        return Ok(ToResponse(ticket));
+        return Ok(ToTicketResponse(ticket));
     }
 
 
@@ -206,7 +206,7 @@ public class TicketsController : ControllerBase
         
         if (ticket is null) return NotFound();
 
-        return Ok(ToResponse(ticket));
+        return Ok(ToTicketResponse(ticket));
     }
 
     [Authorize(Policy = "AgentAccess")]
@@ -215,7 +215,7 @@ public class TicketsController : ControllerBase
     {
         var tickets = await _ticketService.GetQueueAsync(filter);
 
-        return Ok(tickets.Select(ToResponse));
+        return Ok(tickets.Select(ToTicketResponse));
     }
 
     [Authorize(Policy = "AgentAccess")]
@@ -226,7 +226,18 @@ public class TicketsController : ControllerBase
 
         if (ticket is null) return NotFound();
 
-        return Ok(ToResponse(ticket));
+        return Ok(ToTicketResponse(ticket));
+    }
+    
+    [Authorize(Policy =  "AgentAccess")]
+    [HttpGet("{id:guid}/events")]
+    public async Task<IActionResult> Events(Guid id)
+    {
+        var events = await _ticketService.GetEventsAsync(id);
+        
+        if (events is null) return NotFound();
+        
+        return Ok(events.Select(ToTicketEventResponse));
     }
 
     // Friendly alias so the UI can use the CS-{n} reference agents actually cite
@@ -240,10 +251,10 @@ public class TicketsController : ControllerBase
 
         if (ticket is null) return NotFound();
 
-        return Ok(ToResponse(ticket));
+        return Ok(ToTicketResponse(ticket));
     }
 
-    private static TicketResponse ToResponse(Ticket ticket) => new(
+    private static TicketResponse ToTicketResponse(Ticket ticket) => new(
         ticket.Id,
         ticket.DisplayId,
         ticket.Subject,
@@ -260,4 +271,15 @@ public class TicketsController : ControllerBase
         ticket.HandoffFlag,
         ticket.BlockedSince,
         ticket.CancellationReason);
+
+    private static TicketEventResponse ToTicketEventResponse(TicketEvent ticketEvent) => new(
+        ticketEvent.Id,
+        ticketEvent.Actor is null ? null : $"{ticketEvent.Actor.FirstName} {ticketEvent.Actor.LastName}",
+        ticketEvent.EventType,
+        ticketEvent.FromStatus,
+        ticketEvent.ToStatus,
+        ticketEvent.FromPriority,
+        ticketEvent.ToPriority,
+        ticketEvent.Reason,
+        ticketEvent.OccurredAt);
 }

@@ -1,4 +1,4 @@
-import type {ReactNode} from 'react';
+import {useCallback, type ReactNode} from 'react';
 import {ArrowLeft, ArrowLeftRight, Clock} from 'lucide-react';
 import {Link, Navigate, useParams} from 'react-router-dom';
 
@@ -13,9 +13,11 @@ import {
 
 import {PriorityControl} from './PriorityControl';
 import {StatusControl} from './StatusControl';
+import {TicketTimeline} from './TicketTimeline';
 import {useTicket} from './useTicket';
 import {useTicketAction} from './useTicketAction';
 import {useTicketDraft} from './useTicketDraft';
+import {useTicketEvents} from './useTicketEvents';
 
 // Shared small-caps treatment for section headings and <dl> labels.
 const LABEL_CLASS = 'text-sm font-bold uppercase tracking-wide';
@@ -66,7 +68,20 @@ export function TicketDetailPage() {
 
 function TicketDetail({reference}: { reference: string }) {
   const {ticket, loading, error, refetch} = useTicket(reference);
-  const actions = useTicketAction(ticket?.id ?? '', refetch);
+  const {
+    events,
+    loading: eventsLoading,
+    error: eventsError,
+    refetch: refetchEvents,
+  } = useTicketEvents(ticket?.id ?? '');
+
+  // A status/priority save changes the ticket and appends an event, so refresh both.
+  const refetchAll = useCallback(() => {
+    refetch();
+    refetchEvents();
+  }, [refetch, refetchEvents]);
+
+  const actions = useTicketAction(ticket?.id ?? '', refetchAll);
   const draftState = useTicketDraft(ticket, actions);
   const isSaving = actions.pending !== null;
 
@@ -176,6 +191,10 @@ function TicketDetail({reference}: { reference: string }) {
             <div className="whitespace-pre-wrap text-sm leading-relaxed">
               {ticket!.body}
             </div>
+          </Section>
+
+          <Section title="History">
+            <TicketTimeline events={events} loading={eventsLoading} error={eventsError}/>
           </Section>
         </article>
       )}

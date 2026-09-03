@@ -35,6 +35,10 @@ export function StatusControl({ ticket, draftStatus, onChange, disabled }: Statu
   const isOwnerOrLead = user.roles.includes('TeamLead') || ticket.assigneeId === user.id
   const nextStatuses = legalNextStatuses(ticket.status, isOwnerOrLead)
 
+  // No legal moves means this is someone else's active ticket and the viewer
+  // isn't a TeamLead - show the status but grey the control out.
+  const readOnly = nextStatuses.length === 0
+
   function handleValueChange(value: string) {
     const target = value as TicketStatus
     if (target === ticket.status) {
@@ -52,7 +56,11 @@ export function StatusControl({ ticket, draftStatus, onChange, disabled }: Statu
 
   return (
     <>
-      <Select value={draftStatus ?? ticket.status} onValueChange={handleValueChange} disabled={disabled}>
+      <Select
+        value={draftStatus ?? ticket.status}
+        onValueChange={handleValueChange}
+        disabled={disabled || readOnly}
+      >
         <SelectTrigger size="sm" className="w-fit">
           <SelectValue />
         </SelectTrigger>

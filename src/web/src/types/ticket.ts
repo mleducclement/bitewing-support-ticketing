@@ -16,6 +16,28 @@ export type CancellationReason =
   | 'Withdrawn'
   | 'Expired'
 
+// Mirrors bitewing.Data.TicketEventType. Only StatusChanged and PriorityChanged
+// are emitted today; the other two are defined server-side for later slices.
+export type TicketEventType =
+  | 'StatusChanged'
+  | 'AssignmentChanged'
+  | 'PriorityChanged'
+  | 'ClassificationCorrected'
+
+// Mirrors bitewing.Dtos.Tickets.TicketEventResponse. The API flattens the actor
+// to a display name; actorName is null for system-triggered events (auto-cancel).
+export interface TicketEvent {
+  id: string
+  eventType: TicketEventType
+  actorName: string | null
+  fromStatus: TicketStatus | null
+  toStatus: TicketStatus | null
+  fromPriority: TicketPriority | null
+  toPriority: TicketPriority | null
+  reason: string | null
+  occurredAt: string
+}
+
 export interface Ticket {
   id: string
   displayId: string

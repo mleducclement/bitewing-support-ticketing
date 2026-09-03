@@ -262,6 +262,19 @@ public class TicketService : ITicketService
             .FirstOrDefaultAsync(t => t.Id == ticketId);
     }
 
+    public async Task<List<TicketEvent>?> GetEventsAsync(Guid ticketId)
+    {
+        if (!await _db.Tickets.AnyAsync(t => t.Id == ticketId))
+            return null;
+        
+        return await _db.TicketEvents
+            .Where(e => e.TicketId == ticketId)
+            .Include(e => e.Actor )
+            .OrderByDescending(e => e.OccurredAt)
+            .ThenByDescending(e => e.Id)
+            .ToListAsync();
+    }
+
     public async Task<Ticket?> GetByNumberAsync(int ticketNumber)
     {
         return await _db.Tickets
