@@ -36,7 +36,8 @@ Transition logic lives in `TicketService`. Most transitions are validated via `T
 
 ## AI classification (spec §6)
 
-- [ ] Work table + background worker (async, retryable, capped attempts)
+- [~] Work table + background worker (async, retryable, capped attempts) — `ClassificationJob` table and the enqueue-on-create are done (one Pending row per ticket, written in the ticket-creation transaction); the polling worker is slice 2
+- [ ] `IClassifier` seam in place (`ClassifyTicket` + `ClassificationResult`); `ClaudeClassifier` implementation is slice 2
 - [ ] LLM integration for area + type classification
 - [ ] `area_source` / `type_source` tracked, `prompt_version` recorded
 - [ ] Spot-check confirmation flow (fixed random probability, agent confirms on resolution)

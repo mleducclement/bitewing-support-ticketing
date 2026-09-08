@@ -119,6 +119,19 @@ Stored per ticket, one row each (1:1). Two independent axes (§6).
 
 `prompt_version` is non-negotiable: without it, accuracy figures recorded before a prompt change become uninterpretable, and this cannot be reconstructed retroactively.
 
+### ClassificationJob (work table)
+
+One row per ticket, written in the same transaction as the ticket (§5). The background worker polls this table; a ticket can never exist without a job.
+
+| Field           | Notes                                                                 |
+| --------------- | -------------------------------------------------------------------- |
+| `id`            |                                                                     |
+| `ticket_id`     | FK to `Ticket`, unique                                              |
+| `status`        | `Pending` (also the retry state), `Succeeded`, `Failed` (retries exhausted) |
+| `attempt_count` | Incremented on each failed model call                              |
+| `last_error`    | Nullable. Message from the most recent failure                     |
+| `created_at`, `updated_at` |                                                         |
+
 ### Note
 
 Free-text, authored by an agent, attached to a ticket, timestamped. Internal only, never visible to customers. Used for handoff context and for an agent's own record of steps taken. Append-only: notes are never edited or deleted. Any agent can add a note to any ticket regardless of ownership or status, including Resolved and Cancelled tickets, since a note is a record rather than a state change.

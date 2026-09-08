@@ -31,7 +31,16 @@ public class TicketService : ITicketService
             UpdatedAt = now
         };
 
+        var classificationJob = new ClassificationJob
+        {
+            Id = Guid.NewGuid(),
+            CreatedAt = now,
+            UpdatedAt = now,
+            TicketId = ticket.Id,
+        };
+
         _db.Tickets.Add(ticket);
+        _db.ClassificationJobs.Add(classificationJob);
         await _db.SaveChangesAsync();
 
         return ticket;
@@ -54,7 +63,8 @@ public class TicketService : ITicketService
         ticket.HandoffFlag = false;
         ticket.UpdatedAt = DateTime.UtcNow;
 
-        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus, ticket.Status);
+        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus,
+            ticket.Status);
 
         await _db.SaveChangesAsync();
         await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
@@ -79,7 +89,8 @@ public class TicketService : ITicketService
         ticket.BlockedSince = null;
         ticket.UpdatedAt = DateTime.UtcNow;
 
-        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus, ticket.Status);
+        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus,
+            ticket.Status);
 
         await _db.SaveChangesAsync();
         await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
@@ -102,7 +113,8 @@ public class TicketService : ITicketService
         ticket.BlockedSince = DateTime.UtcNow;
         ticket.UpdatedAt = DateTime.UtcNow;
 
-        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus, ticket.Status);
+        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus,
+            ticket.Status);
 
         await _db.SaveChangesAsync();
         await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
@@ -125,7 +137,8 @@ public class TicketService : ITicketService
         ticket.BlockedSince = null;
         ticket.UpdatedAt = DateTime.UtcNow;
 
-        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus, ticket.Status);
+        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus,
+            ticket.Status);
 
         await _db.SaveChangesAsync();
         await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
@@ -147,7 +160,8 @@ public class TicketService : ITicketService
         ticket.Status = TicketStatus.Resolved;
         ticket.UpdatedAt = DateTime.UtcNow;
 
-        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus, ticket.Status);
+        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, null, ticket.UpdatedAt, previousStatus,
+            ticket.Status);
 
         await _db.SaveChangesAsync();
         await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
@@ -173,7 +187,8 @@ public class TicketService : ITicketService
         ticket.HandoffFlag = false;
         ticket.UpdatedAt = DateTime.UtcNow;
 
-        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, reason.ToString(), ticket.UpdatedAt, previousStatus, ticket.Status);
+        AddEvent(ticket.Id, agentId, TicketEventType.StatusChanged, reason.ToString(), ticket.UpdatedAt, previousStatus,
+            ticket.Status);
 
         await _db.SaveChangesAsync();
         await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
@@ -181,28 +196,30 @@ public class TicketService : ITicketService
         return ticket;
     }
 
-    public async Task<Ticket?> ChangePriorityAsync(Guid ticketId, string agentId, TicketPriority newPriority, string? reason)
+    public async Task<Ticket?> ChangePriorityAsync(Guid ticketId, string agentId, TicketPriority newPriority,
+        string? reason)
     {
         var ticket = await _db.Tickets.FindAsync(ticketId);
         if (ticket is null) return null;
 
         if (ticket.Status is TicketStatus.Resolved or TicketStatus.Cancelled)
             throw new TicketClosedException(ticket.Status);
-        
+
         if (ticket.Priority == newPriority) return ticket;
-        
+
         if (newPriority < ticket.Priority && reason is null)
             throw new PriorityDowngradeReasonRequiredException(ticket.Priority, newPriority);
-            
+
         var previousPriority = ticket.Priority;
         ticket.Priority = newPriority;
         ticket.UpdatedAt = DateTime.UtcNow;
-        
-        AddEvent(ticket.Id, agentId, TicketEventType.PriorityChanged, reason, ticket.UpdatedAt, null, null, previousPriority, newPriority);
+
+        AddEvent(ticket.Id, agentId, TicketEventType.PriorityChanged, reason, ticket.UpdatedAt, null, null,
+            previousPriority, newPriority);
 
         await _db.SaveChangesAsync();
         await _db.Entry(ticket).Reference(t => t.Assignee).LoadAsync();
-        
+
         return ticket;
     }
 
@@ -224,7 +241,8 @@ public class TicketService : ITicketService
             ticket.HandoffFlag = false;
             ticket.UpdatedAt = DateTime.UtcNow;
 
-            AddEvent(ticket.Id, null, TicketEventType.StatusChanged, nameof(CancellationReason.Expired), ticket.UpdatedAt, previousStatus, ticket.Status);
+            AddEvent(ticket.Id, null, TicketEventType.StatusChanged, nameof(CancellationReason.Expired),
+                ticket.UpdatedAt, previousStatus, ticket.Status);
         }
 
         if (expiredTickets.Count > 0)
@@ -266,10 +284,10 @@ public class TicketService : ITicketService
     {
         if (!await _db.Tickets.AnyAsync(t => t.Id == ticketId))
             return null;
-        
+
         return await _db.TicketEvents
             .Where(e => e.TicketId == ticketId)
-            .Include(e => e.Actor )
+            .Include(e => e.Actor)
             .OrderByDescending(e => e.OccurredAt)
             .ThenByDescending(e => e.Id)
             .ToListAsync();
@@ -279,20 +297,21 @@ public class TicketService : ITicketService
     {
         if (!await _db.Tickets.AnyAsync(t => t.Id == ticketId))
             return null;
-        
+
         var date = DateTime.UtcNow;
 
-        var note = new Note{
+        var note = new Note
+        {
             Id = Guid.NewGuid(),
             TicketId = ticketId,
             AuthorId = authorId,
             Body = body,
             CreatedAt = date
         };
-        
+
         _db.Notes.Add(note);
         await _db.SaveChangesAsync();
-        
+
         await _db.Entry(note).Reference(n => n.Author).LoadAsync();
 
         return note;
@@ -302,7 +321,7 @@ public class TicketService : ITicketService
     {
         if (!await _db.Tickets.AnyAsync(t => t.Id == ticketId))
             return null;
-        
+
         return await _db.Notes
             .Where(n => n.TicketId == ticketId)
             .Include(n => n.Author)
@@ -324,8 +343,10 @@ public class TicketService : ITicketService
             throw new UnauthorizedTicketActionException(ticket.Id);
     }
 
-    private void AddEvent(Guid ticketId, string? actorId, TicketEventType eventType, string? reason, DateTime occurredAt,
-        TicketStatus? fromStatus = null, TicketStatus? toStatus = null, TicketPriority? fromPriority = null, TicketPriority? toPriority = null)
+    private void AddEvent(Guid ticketId, string? actorId, TicketEventType eventType, string? reason,
+        DateTime occurredAt,
+        TicketStatus? fromStatus = null, TicketStatus? toStatus = null, TicketPriority? fromPriority = null,
+        TicketPriority? toPriority = null)
     {
         _db.TicketEvents.Add(new TicketEvent
         {

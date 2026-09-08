@@ -9,6 +9,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<Ticket> Tickets => Set<Ticket>();
     public DbSet<Classification> Classifications => Set<Classification>();
+    public DbSet<ClassificationJob> ClassificationJobs => Set<ClassificationJob>();
     public DbSet<Note> Notes => Set<Note>();
     public DbSet<TicketEvent> TicketEvents => Set<TicketEvent>();
     public DbSet<SpotCheck> SpotChecks => Set<SpotCheck>();
@@ -48,6 +49,17 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey<Classification>(c => c.TicketId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+        builder.Entity<ClassificationJob>(entity =>
+        {
+            entity.HasIndex(cj => cj.TicketId).IsUnique();
+
+            entity.HasOne(cj => cj.Ticket)
+                .WithOne()
+                .HasForeignKey<ClassificationJob>(cj => cj.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+            
 
         builder.Entity<SpotCheck>(entity =>
         {
