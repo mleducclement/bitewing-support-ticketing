@@ -11,6 +11,7 @@ import {
   HANDOFF_BADGE_CLASS,
 } from '@/lib/ticketFormat';
 
+import {NotesSection} from './NotesSection';
 import {PriorityControl} from './PriorityControl';
 import {StatusControl} from './StatusControl';
 import {TicketTimeline} from './TicketTimeline';
@@ -191,6 +192,10 @@ function TicketDetail({reference}: { reference: string }) {
             <div className="whitespace-pre-wrap text-sm leading-relaxed">
               {ticket!.body}
             </div>
+          </Section>
+
+          <Section title="Notes">
+            <NotesSection ticketId={ticket!.id}/>
           </Section>
 
           <Section title="History">

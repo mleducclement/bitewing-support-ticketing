@@ -275,6 +275,42 @@ public class TicketService : ITicketService
             .ToListAsync();
     }
 
+    public async Task<Note?> AddNoteAsync(Guid ticketId, string authorId, string body)
+    {
+        if (!await _db.Tickets.AnyAsync(t => t.Id == ticketId))
+            return null;
+        
+        var date = DateTime.UtcNow;
+
+        var note = new Note{
+            Id = Guid.NewGuid(),
+            TicketId = ticketId,
+            AuthorId = authorId,
+            Body = body,
+            CreatedAt = date
+        };
+        
+        _db.Notes.Add(note);
+        await _db.SaveChangesAsync();
+        
+        await _db.Entry(note).Reference(n => n.Author).LoadAsync();
+
+        return note;
+    }
+
+    public async Task<List<Note>?> GetNotesAsync(Guid ticketId)
+    {
+        if (!await _db.Tickets.AnyAsync(t => t.Id == ticketId))
+            return null;
+        
+        return await _db.Notes
+            .Where(n => n.TicketId == ticketId)
+            .Include(n => n.Author)
+            .OrderByDescending(n => n.CreatedAt)
+            .ThenByDescending(n => n.Id)
+            .ToListAsync();
+    }
+
     public async Task<Ticket?> GetByNumberAsync(int ticketNumber)
     {
         return await _db.Tickets

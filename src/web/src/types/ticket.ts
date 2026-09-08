@@ -38,6 +38,15 @@ export interface TicketEvent {
   occurredAt: string
 }
 
+// Mirrors bitewing.Dtos.Tickets.NoteResponse. Internal, agent-authored, never
+// shown to customers (spec §4). Append-only: no edit, no delete.
+export interface Note {
+  id: string
+  authorName: string
+  body: string
+  createdAt: string
+}
+
 export interface Ticket {
   id: string
   displayId: string

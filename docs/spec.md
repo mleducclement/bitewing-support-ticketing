@@ -121,7 +121,7 @@ Stored per ticket, one row each (1:1). Two independent axes (§6).
 
 ### Note
 
-Free-text, authored by an agent, attached to a ticket, timestamped. Internal only, never visible to customers. Used for handoff context and for an agent's own record of steps taken.
+Free-text, authored by an agent, attached to a ticket, timestamped. Internal only, never visible to customers. Used for handoff context and for an agent's own record of steps taken. Append-only: notes are never edited or deleted. Any agent can add a note to any ticket regardless of ownership or status, including Resolved and Cancelled tickets, since a note is a record rather than a state change.
 
 | Field        | Notes                           |
 | ------------ | ------------------------------- |

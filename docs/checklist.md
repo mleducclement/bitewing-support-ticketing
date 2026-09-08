@@ -29,10 +29,10 @@ Transition logic lives in `TicketService`. Most transitions are validated via `T
 ## Ticket operations (spec §5)
 
 - [x] Queue endpoint (`GET /api/tickets`) — filterable by status/priority/assignee/handoff_flag, sorted priority-then-age; area filter deferred until classification worker exists
-- [~] Ticket detail endpoint (`GET /api/tickets/{id}`) — returns the flat `TicketResponse`, now including `updatedAt`; event history exposed via `GET /api/tickets/{id}/events` (newest-first, actor flattened to a name, `null` actor for system events); notes and classification still to be added as later slices
+- [~] Ticket detail endpoint (`GET /api/tickets/{id}`) — returns the flat `TicketResponse`, now including `updatedAt`; event history exposed via `GET /api/tickets/{id}/events` and notes via `GET /api/tickets/{id}/notes` (both newest-first, actor/author flattened to a name); classification still to be added as a later slice
 - [x] Priority change endpoint (`POST /api/tickets/{id}/priority`) — any agent, any ticket including unowned; downgrade requires a reason; writes a `PriorityChanged` event with from/to
 - [ ] Bulk unassign endpoint — TeamLead only, returns tickets to Open with `handoff_flag` set, priority untouched
-- [ ] Add note endpoint
+- [x] Add note endpoint (`POST /api/tickets/{id}/notes`, any agent, any ticket; `GET /api/tickets/{id}/notes` newest-first, author flattened to a name) — append-only, writes no TicketEvent
 
 ## AI classification (spec §6)
 
@@ -58,7 +58,7 @@ React + Vite + Tailwind v4 + shadcn/ui. Feature-folder layout under `src/web/src
 - [x] Login / logout: session check on load (`GET /api/auth/me`), login form, sign-out in the header
 - [x] Client-side routing (`react-router-dom`): `/` queue, `/tickets/CS-{n}` detail (friendly reference, not the GUID; backend `GET /api/tickets/CS-{number}` alias); queue rows are clickable and carry a "View" link
 - [~] Queue view: live `GET /api/tickets`, colored status badges, priority, age, handoff marker, client-side status/priority/assignee filters. Server-side filtering and a card layout option are still open.
-- [~] Ticket detail: sectioned into Status / Customer / Activity / Message / History cards. Read-only view, status controls (legal transitions only, greyed out when the viewer is neither owner nor TeamLead), priority editing, and the History timeline (newest-first, captioned status/priority badge pairs, actor + relative time) are done. Notes and classification are later slices.
+- [~] Ticket detail: sectioned into Status / Customer / Activity / Message / History cards. Read-only view, status controls (legal transitions only, greyed out when the viewer is neither owner nor TeamLead), priority editing, the Notes section (compose box + newest-first list, internal only), and the History timeline (newest-first, captioned status/priority badge pairs, actor + relative time) are done. Classification is a later slice.
 - [ ] Public intake form
 - [ ] Trend dashboard
 - [ ] Frontend visual pass — type scale, spacing, and card treatment applied consistently across queue + detail + intake form + dashboard (detail page had a light readability pass; the rest is deferred so it's done coherently)

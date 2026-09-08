@@ -189,7 +189,7 @@ public class TicketsController : ControllerBase
     public async Task<IActionResult> Priority(Guid id, PriorityChangeRequest request)
     {
         var agentId = _userManager.GetUserId(User);
-        
+
         Ticket? ticket;
         try
         {
@@ -203,7 +203,7 @@ public class TicketsController : ControllerBase
         {
             return Conflict(new { message = ex.Message });
         }
-        
+
         if (ticket is null) return NotFound();
 
         return Ok(ToTicketResponse(ticket));
@@ -228,16 +228,43 @@ public class TicketsController : ControllerBase
 
         return Ok(ToTicketResponse(ticket));
     }
-    
-    [Authorize(Policy =  "AgentAccess")]
+
+    [Authorize(Policy = "AgentAccess")]
     [HttpGet("{id:guid}/events")]
     public async Task<IActionResult> Events(Guid id)
     {
         var events = await _ticketService.GetEventsAsync(id);
-        
+
         if (events is null) return NotFound();
-        
+
         return Ok(events.Select(ToTicketEventResponse));
+    }
+
+    [Authorize(Policy = "AgentAccess")]
+    [HttpPost("{id:guid}/notes")]
+    public async Task<IActionResult> AddNote(Guid id, CreateNoteRequest request)
+    {
+        var body = request.Body.Trim();
+        if (body.Length == 0)
+            return BadRequest(new { message = "Body must not be empty." });
+
+        var authorId = _userManager.GetUserId(User)!;
+        var note = await _ticketService.AddNoteAsync(id, authorId, body);
+
+        if (note is null) return NotFound();
+
+        return Created($"/api/tickets/{id}/notes", ToNoteResponse(note));
+    }
+
+    [Authorize(Policy = "AgentAccess")]
+    [HttpGet("{id:guid}/notes")]
+    public async Task<IActionResult> Notes(Guid id)
+    {
+        var notes = await _ticketService.GetNotesAsync(id);
+        
+        if (notes is null) return NotFound();
+        
+        return Ok(notes.Select(ToNoteResponse));
     }
 
     // Friendly alias so the UI can use the CS-{n} reference agents actually cite
@@ -270,7 +297,8 @@ public class TicketsController : ControllerBase
         ticket.Assignee is null ? null : $"{ticket.Assignee.FirstName} {ticket.Assignee.LastName}",
         ticket.HandoffFlag,
         ticket.BlockedSince,
-        ticket.CancellationReason);
+        ticket.CancellationReason
+    );
 
     private static TicketEventResponse ToTicketEventResponse(TicketEvent ticketEvent) => new(
         ticketEvent.Id,
@@ -281,5 +309,13 @@ public class TicketsController : ControllerBase
         ticketEvent.FromPriority,
         ticketEvent.ToPriority,
         ticketEvent.Reason,
-        ticketEvent.OccurredAt);
+        ticketEvent.OccurredAt
+    );
+    
+    private static NoteResponse ToNoteResponse(Note note) => new(
+        note.Id,
+        $"{note.Author.FirstName} {note.Author.LastName}",
+        note.Body,
+        note.CreatedAt
+    );
 }
