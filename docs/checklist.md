@@ -36,10 +36,10 @@ Transition logic lives in `TicketService`. Most transitions are validated via `T
 
 ## AI classification (spec §6)
 
-- [~] Work table + background worker (async, retryable, capped attempts) — `ClassificationJob` table and the enqueue-on-create are done (one Pending row per ticket, written in the ticket-creation transaction); the polling worker is slice 2
-- [ ] `IClassifier` seam in place (`ClassifyTicket` + `ClassificationResult`); `ClaudeClassifier` implementation is slice 2
-- [ ] LLM integration for area + type classification
-- [ ] `area_source` / `type_source` tracked, `prompt_version` recorded
+- [x] Work table + background worker (async, retryable, capped attempts) — `ClassificationJob` table, enqueue-on-create, and `ClassificationBackgroundService` polling `ClassificationService.ProcessPendingJobsAsync` are all done; failures retry up to 3 attempts (spec §6) before the job is marked `Failed`
+- [x] `IClassifier` seam in place (`ClassifyTicket` + `ClassificationResult`); `ClaudeClassifier` calls the Claude Messages API directly over `HttpClient`, forcing a `classify_ticket` tool call constrained to the `TicketArea`/`TicketType` enum names
+- [x] LLM integration for area + type classification
+- [x] `area_source` / `type_source` tracked, `prompt_version` recorded
 - [ ] Spot-check confirmation flow (fixed random probability, agent confirms on resolution)
 - [ ] Trend dashboard — area/type breakdowns, unclassified count, live agreement rate, last controlled accuracy figure
 

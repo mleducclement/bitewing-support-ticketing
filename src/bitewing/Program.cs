@@ -15,7 +15,7 @@ builder.Services
 builder.Services.AddOpenApi();
 
 builder.Services.AddDatabase(builder.Configuration);
-builder.Services.AddApplicationServices();
+builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddAppIdentity();
 
 var app = builder.Build();
