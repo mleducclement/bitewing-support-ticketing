@@ -67,8 +67,8 @@ React + Vite + Tailwind v4 + shadcn/ui. Feature-folder layout under `src/web/src
 ## Infrastructure follow-ups
 
 - [x] CI/CD gating — Render's "wait for CI to pass" setting blocks the deploy unless the commit's GitHub checks (`test` + `web`) are green
-- [ ] Decision log: concurrency risk on Claim accepted for v1 — not yet written up
-- [ ] Decision log: AuthController vs MapIdentityApi — still outstanding from last week
+- [x] Decision log: concurrency risk on Claim accepted for v1
+- [x] Decision log: AuthController vs MapIdentityApi
 
 ## Explicitly out of scope for v1 (spec §8)
 
