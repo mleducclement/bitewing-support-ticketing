@@ -5,10 +5,12 @@ import {Link, Navigate, useParams} from 'react-router-dom';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {
+  AREA_LABELS,
   formatAge,
   formatDateTime,
   formatDuration,
   HANDOFF_BADGE_CLASS,
+  TYPE_LABELS,
 } from '@/lib/ticketFormat';
 
 import {NotesSection} from './NotesSection';
@@ -106,12 +108,20 @@ function TicketDetail({reference}: { reference: string }) {
         </div>
       ) : (
         <article className="space-y-4">
-          <header className="mb-1">
+          <section className="rounded-lg border bg-card p-5">
             <Badge variant="outline" className="font-normal text-muted-foreground">
               {ticket!.displayId}
             </Badge>
             <h1 className="mt-2 text-2xl font-semibold leading-tight">{ticket!.subject}</h1>
-          </header>
+            <dl className={`mt-4 ${DL_CLASS}`}>
+              <Field label="Area">
+                {ticket!.area ? AREA_LABELS[ticket!.area] : <span className="text-muted-foreground italic">Unclassified</span>}
+              </Field>
+              <Field label="Type">
+                {ticket!.type ? TYPE_LABELS[ticket!.type] : <span className="text-muted-foreground italic">Unclassified</span>}
+              </Field>
+            </dl>
+          </section>
 
           <Section title="Status">
             <div className="flex flex-wrap items-center gap-2">

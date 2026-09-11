@@ -18,5 +18,9 @@ public record TicketResponse(
     string? AssigneeName,
     bool HandoffFlag,
     DateTime? BlockedSince,
-    CancellationReason? CancellationReason
+    CancellationReason? CancellationReason,
+    TicketArea? Area,
+    ClassificationSource? AreaSource,
+    TicketType? Type,
+    ClassificationSource? TypeSource
 );

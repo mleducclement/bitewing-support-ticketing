@@ -1,7 +1,7 @@
 import type { VariantProps } from 'class-variance-authority'
 
 import type { badgeVariants } from '@/components/ui/badge.tsx'
-import type { TicketPriority, TicketStatus } from '@/types/ticket.ts'
+import type { TicketArea, TicketPriority, TicketStatus, TicketType } from '@/types/ticket.ts'
 
 type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>
 
@@ -17,6 +17,21 @@ export const PRIORITY_LABELS: Record<TicketPriority, string> = {
   Low: 'Low',
   Normal: 'Normal',
   Urgent: 'Urgent',
+}
+
+export const AREA_LABELS: Record<TicketArea, string> = {
+  Claims: 'Claims',
+  BookingAndCalendar: 'Booking & Calendar',
+  Reminders: 'Reminders',
+  AccessAndAccounts: 'Access & Accounts',
+  SubscriptionAndInvoicing: 'Subscription & Invoicing',
+  Other: 'Other',
+}
+
+export const TYPE_LABELS: Record<TicketType, string> = {
+  Broken: 'Broken',
+  HowTo: 'How-to',
+  FeatureRequest: 'Feature request',
 }
 
 // Priority-then-age is the queue's sort order (spec §5). Higher number sorts first.

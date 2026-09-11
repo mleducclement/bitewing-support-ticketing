@@ -16,6 +16,19 @@ export type CancellationReason =
   | 'Withdrawn'
   | 'Expired'
 
+// Mirrors bitewing.Data.TicketArea / TicketType / ClassificationSource.
+export type TicketArea =
+  | 'Claims'
+  | 'BookingAndCalendar'
+  | 'Reminders'
+  | 'AccessAndAccounts'
+  | 'SubscriptionAndInvoicing'
+  | 'Other'
+
+export type TicketType = 'Broken' | 'HowTo' | 'FeatureRequest'
+
+export type ClassificationSource = 'Model' | 'Human'
+
 // Mirrors bitewing.Data.TicketEventType. Only StatusChanged and PriorityChanged
 // are emitted today; the other two are defined server-side for later slices.
 export type TicketEventType =
@@ -64,4 +77,8 @@ export interface Ticket {
   handoffFlag: boolean
   blockedSince: string | null
   cancellationReason: CancellationReason | null
+  area: TicketArea | null
+  areaSource: ClassificationSource | null
+  type: TicketType | null
+  typeSource: ClassificationSource | null
 }

@@ -297,7 +297,11 @@ public class TicketsController : ControllerBase
         ticket.Assignee is null ? null : $"{ticket.Assignee.FirstName} {ticket.Assignee.LastName}",
         ticket.HandoffFlag,
         ticket.BlockedSince,
-        ticket.CancellationReason
+        ticket.CancellationReason,
+        ticket.Classification?.Area,
+        ticket.Classification?.AreaSource,
+        ticket.Classification?.Type,
+        ticket.Classification?.TypeSource
     );
 
     private static TicketEventResponse ToTicketEventResponse(TicketEvent ticketEvent) => new(

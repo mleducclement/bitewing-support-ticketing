@@ -277,6 +277,7 @@ public class TicketService : ITicketService
     {
         return await _db.Tickets
             .Include(t => t.Assignee)
+            .Include(t => t.Classification)
             .FirstOrDefaultAsync(t => t.Id == ticketId);
     }
 
@@ -334,6 +335,7 @@ public class TicketService : ITicketService
     {
         return await _db.Tickets
             .Include(t => t.Assignee)
+            .Include(t => t.Classification)
             .FirstOrDefaultAsync(t => t.TicketNumber == ticketNumber);
     }
 
