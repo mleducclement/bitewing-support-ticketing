@@ -6,9 +6,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
-import type { TicketPriority, TicketStatus } from '@/types/ticket'
-import { PRIORITY_LABELS, STATUS_LABELS } from '../../lib/ticketFormat.ts'
+import type { TicketArea, TicketPriority, TicketStatus } from '@/types/ticket'
+import { AREA_LABELS, PRIORITY_LABELS, STATUS_LABELS } from '../../lib/ticketFormat.ts'
 import {
+  ACTIVE,
   EMPTY_FILTERS,
   UNASSIGNED,
   type QueueFilterState,
@@ -24,18 +25,33 @@ const STATUS_ORDER: TicketStatus[] = [
 
 const PRIORITY_ORDER: TicketPriority[] = ['Urgent', 'Normal', 'Low']
 
+const AREA_ORDER: TicketArea[] = [
+  'Claims',
+  'BookingAndCalendar',
+  'Reminders',
+  'AccessAndAccounts',
+  'SubscriptionAndInvoicing',
+  'Other',
+]
+
+export interface Assignee {
+  id: string
+  name: string
+}
+
 interface QueueFiltersProps {
   value: QueueFilterState
-  /** Distinct agent names present in the queue, for the assignee dropdown. */
-  assignees: string[]
+  /** Distinct agents present in the queue, for the assignee dropdown. */
+  assignees: Assignee[]
   onChange: (next: QueueFilterState) => void
 }
 
 export function QueueFilters({ value, assignees, onChange }: QueueFiltersProps) {
   const isDirty =
-    value.status !== 'all' ||
+    value.status !== ACTIVE ||
     value.priority !== 'all' ||
-    value.assignee !== 'all'
+    value.assignee !== 'all' ||
+    value.area !== 'all'
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -49,6 +65,7 @@ export function QueueFilters({ value, assignees, onChange }: QueueFiltersProps) 
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value={ACTIVE}>Open queue</SelectItem>
           <SelectItem value="all">All statuses</SelectItem>
           {STATUS_ORDER.map((status) => (
             <SelectItem key={status} value={status}>
@@ -90,9 +107,28 @@ export function QueueFilters({ value, assignees, onChange }: QueueFiltersProps) 
         <SelectContent>
           <SelectItem value="all">Any assignee</SelectItem>
           <SelectItem value={UNASSIGNED}>Unassigned</SelectItem>
-          {assignees.map((name) => (
-            <SelectItem key={name} value={name}>
-              {name}
+          {assignees.map((assignee) => (
+            <SelectItem key={assignee.id} value={assignee.id}>
+              {assignee.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select
+        value={value.area}
+        onValueChange={(area) =>
+          onChange({ ...value, area: area as QueueFilterState['area'] })
+        }
+      >
+        <SelectTrigger className="w-48" aria-label="Filter by area">
+          <SelectValue placeholder="Area" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All areas</SelectItem>
+          {AREA_ORDER.map((area) => (
+            <SelectItem key={area} value={area}>
+              {AREA_LABELS[area]}
             </SelectItem>
           ))}
         </SelectContent>

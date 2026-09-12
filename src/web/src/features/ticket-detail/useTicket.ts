@@ -31,6 +31,7 @@ export function useTicket(reference: string): TicketResult {
       .then((data) => {
         if (cancelled) return
         setTicket(data)
+        setError(false)
         setLoading(false)
       })
       .catch(() => {

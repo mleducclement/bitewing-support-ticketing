@@ -10,7 +10,7 @@ export interface TicketsResult {
   refetch: () => void
 }
 
-export function useTickets(): TicketsResult {
+export function useTickets(query: string): TicketsResult {
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -25,10 +25,13 @@ export function useTickets(): TicketsResult {
   useEffect(() => {
     let cancelled = false
 
-    apiFetch<Ticket[]>('/api/tickets')
+    const path = query ? `/api/tickets?${query}` : '/api/tickets'
+
+    apiFetch<Ticket[]>(path)
       .then((data) => {
         if (cancelled) return
         setTickets(data)
+        setError(false)
         setLoading(false)
       })
       .catch(() => {
@@ -40,7 +43,7 @@ export function useTickets(): TicketsResult {
     return () => {
       cancelled = true
     }
-  }, [reloadKey])
+  }, [query, reloadKey])
 
   return { tickets, loading, error, refetch }
 }

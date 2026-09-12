@@ -253,16 +253,26 @@ public class TicketService : ITicketService
 
     public async Task<List<Ticket>> GetQueueAsync(TicketQueueRequest filter)
     {
-        var query = _db.Tickets.Include(t => t.Assignee).AsQueryable();
+        var query = _db.Tickets
+            .Include(t => t.Assignee)
+            .Include(t => t.Classification)
+            .AsQueryable();
 
+        if (filter.Area is not null)
+            query = query.Where(t => t.Classification != null && t.Classification.Area == filter.Area);
+        
         if (filter.Status is not null)
             query = query.Where(t => t.Status == filter.Status);
+        else if (filter.AllStatuses != true)
+            query = query.Where(t => t.Status != TicketStatus.Resolved && t.Status != TicketStatus.Cancelled);
 
         if (filter.Priority is not null)
             query = query.Where(t => t.Priority == filter.Priority);
 
         if (filter.AssigneeId is not null)
             query = query.Where(t => t.AssigneeId == filter.AssigneeId);
+        else if (filter.Unassigned == true)
+            query = query.Where(t => t.AssigneeId == null);
 
         if (filter.HandoffFlag is not null)
             query = query.Where(t => t.HandoffFlag == filter.HandoffFlag);

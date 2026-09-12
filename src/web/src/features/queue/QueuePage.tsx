@@ -1,58 +1,38 @@
 import { useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { QueueFilters } from './QueueFilters'
+import { QueueFilters, type Assignee } from './QueueFilters'
 import {
+  ACTIVE,
+  buildQueueQuery,
   EMPTY_FILTERS,
-  UNASSIGNED,
   type QueueFilterState,
 } from './queueFilterState'
 import { TicketQueueTable } from './TicketQueueTable'
-import { comparePriorityThenAge } from '../../lib/ticketFormat.ts'
 import { useTickets } from './useTickets'
 
 export function QueuePage() {
-  const { tickets: allTickets, loading, error, refetch } = useTickets()
   const [filters, setFilters] = useState<QueueFilterState>(EMPTY_FILTERS)
+  const query = useMemo(() => buildQueueQuery(filters), [filters])
+  const { tickets, loading, error, refetch } = useTickets(query)
 
-  const assignees = useMemo(
-    () =>
-      [
-        ...new Set(
-          allTickets
-            .map((ticket) => ticket.assigneeName)
-            .filter((name): name is string => name !== null),
-        ),
-      ].sort((a, b) => a.localeCompare(b)),
-    [allTickets],
-  )
+  const isDefaultFilters =
+    filters.status === ACTIVE &&
+    filters.priority === 'all' &&
+    filters.assignee === 'all' &&
+    filters.area === 'all'
 
-  const tickets = useMemo(() => {
-    return allTickets
-      .filter((ticket) => {
-        if (filters.status !== 'all' && ticket.status !== filters.status) {
-          return false
-        }
-        if (
-          filters.priority !== 'all' &&
-          ticket.priority !== filters.priority
-        ) {
-          return false
-        }
-        if (filters.assignee === UNASSIGNED && ticket.assigneeName !== null) {
-          return false
-        }
-        if (
-          filters.assignee !== 'all' &&
-          filters.assignee !== UNASSIGNED &&
-          ticket.assigneeName !== filters.assignee
-        ) {
-          return false
-        }
-        return true
-      })
-      .sort(comparePriorityThenAge)
-  }, [allTickets, filters])
+  const assignees = useMemo<Assignee[]>(() => {
+    const byId = new Map<string, string>()
+    for (const ticket of tickets) {
+      if (ticket.assigneeId && ticket.assigneeName) {
+        byId.set(ticket.assigneeId, ticket.assigneeName)
+      }
+    }
+    return [...byId.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [tickets])
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
@@ -86,7 +66,7 @@ export function QueuePage() {
         <TicketQueueTable
           tickets={tickets}
           emptyMessage={
-            allTickets.length === 0
+            isDefaultFilters
               ? 'The queue is empty.'
               : 'No tickets match these filters.'
           }

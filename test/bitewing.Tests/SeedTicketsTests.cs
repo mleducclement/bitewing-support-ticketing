@@ -21,7 +21,7 @@ public class SeedTicketsTests : TicketsTestBase
     {
         await LoginAsSeededAgentAsync();
 
-        var tickets = await Client.GetFromJsonAsync<List<TicketResponse>>("/api/tickets", TestJson.Options);
+        var tickets = await Client.GetFromJsonAsync<List<TicketResponse>>("/api/tickets?allStatuses=true", TestJson.Options);
 
         Assert.NotNull(tickets);
         Assert.True(tickets!.Count >= 12);

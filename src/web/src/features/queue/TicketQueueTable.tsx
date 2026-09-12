@@ -11,14 +11,21 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Ticket } from '@/types/ticket'
 import {
+  AREA_LABELS,
   PRIORITY_LABELS,
   STATUS_LABELS,
+  TYPE_LABELS,
   formatAge,
   priorityBadgeVariant,
   statusBadgeClass,
 } from '../../lib/ticketFormat.ts'
+
+function Unclassified() {
+  return <span className="text-muted-foreground">–</span>
+}
 
 interface TicketQueueTableProps {
   tickets: Ticket[]
@@ -36,6 +43,8 @@ export function TicketQueueTable({ tickets, emptyMessage }: TicketQueueTableProp
             <TableHead>Ticket</TableHead>
             <TableHead>Subject</TableHead>
             <TableHead>Clinic</TableHead>
+            <TableHead>Area</TableHead>
+            <TableHead>Type</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Priority</TableHead>
             <TableHead>Assignee</TableHead>
@@ -47,7 +56,7 @@ export function TicketQueueTable({ tickets, emptyMessage }: TicketQueueTableProp
           {tickets.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={8}
+                colSpan={10}
                 className="h-24 text-center text-muted-foreground"
               >
                 {emptyMessage}
@@ -64,18 +73,31 @@ export function TicketQueueTable({ tickets, emptyMessage }: TicketQueueTableProp
                   <span className="inline-flex items-center gap-1.5">
                     {ticket.displayId}
                     {ticket.handoffFlag && (
-                      <ArrowLeftRight
-                        className="size-3.5 text-amber-600 dark:text-amber-500"
-                        aria-label="Handed off"
-                      />
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <ArrowLeftRight
+                            className="size-3.5 text-amber-600 dark:text-amber-500"
+                            aria-label="Handed off"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Handed off: returned to the queue for another agent to pick up
+                        </TooltipContent>
+                      </Tooltip>
                     )}
                   </span>
                 </TableCell>
-                <TableCell className="max-w-[22rem] truncate">
+                <TableCell className="max-w-[12rem] truncate">
                   {ticket.subject}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {ticket.clinicName}
+                </TableCell>
+                <TableCell>
+                  {ticket.area ? AREA_LABELS[ticket.area] : <Unclassified />}
+                </TableCell>
+                <TableCell>
+                  {ticket.type ? TYPE_LABELS[ticket.type] : <Unclassified />}
                 </TableCell>
                 <TableCell>
                   <Badge
